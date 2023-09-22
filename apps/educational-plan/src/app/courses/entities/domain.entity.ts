@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
-import { IDomain, StudyForm } from "@educational-plan/types";
+import { DomainType, IDomain, StudyForm } from "@educational-plan/types";
 import { Specialization } from "./specialization.entity";
 
 @Entity()
@@ -13,6 +13,9 @@ export class Domain implements IDomain {
 
   @Column("enum", { enum: StudyForm })
   studyForm: StudyForm;
+
+  @Column("enum", { enum: StudyForm })
+  type: DomainType;
 
   @OneToMany(type => Specialization, specialization => specialization.domain, { eager: true })
   specializations: Specialization[];

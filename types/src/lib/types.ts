@@ -4,10 +4,16 @@ export enum StudyForm {
   IFR = 'IFR',
 }
 
+export enum DomainType {
+  Bachelor = 'Bachelor',
+  Master = 'Master',
+}
+
 export interface IDomain {
   id: string;
   name: string;
   studyForm: StudyForm;
+  type: DomainType;
   specializations?: ISpecialization[];
 }
 
