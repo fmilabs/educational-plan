@@ -14,7 +14,7 @@ export class Domain implements IDomain {
   @Column("enum", { enum: StudyForm })
   studyForm: StudyForm;
 
-  @Column("enum", { enum: StudyForm })
+  @Column("enum", { enum: DomainType })
   type: DomainType;
 
   @OneToMany(type => Specialization, specialization => specialization.domain, { eager: true })

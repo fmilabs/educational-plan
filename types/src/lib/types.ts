@@ -5,8 +5,8 @@ export enum StudyForm {
 }
 
 export enum DomainType {
-  Bachelor = 'Bachelor',
-  Master = 'Master',
+  Bachelor = 'bachelor',
+  Master = 'master',
 }
 
 export interface IDomain {
@@ -28,7 +28,7 @@ export interface ICourse {
   name: string;
   credits: number;
   semester: number;
-  maxStudents: number;
+  maxStudents: number | null;
   curriculumPath: string;
   specializations?: ISpecialization[];
 }

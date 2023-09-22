@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Specialization } from './entities/specialization.entity';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
 import { UpdateSpecializationDto } from './dto/update-specialization.dto';
@@ -16,6 +16,10 @@ export class SpecializationsService {
 
   async findAll() {
     return this.specializationsRepository.find();
+  }
+
+  async findAllByIds(ids: string[]) {
+    return this.specializationsRepository.find({ where: { id: In(ids) } });
   }
 
   async findOne(id: string) {
