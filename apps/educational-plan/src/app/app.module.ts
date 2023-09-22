@@ -6,6 +6,8 @@ import configuration from './configuration';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { CoursesModule } from './courses/courses.module';
 import { join } from 'path';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { join } from 'path';
       rootPath: join(__dirname, 'uploads'),
       serveRoot: '/uploads',
     }),
+    AuthModule,
+    UsersModule,
     CoursesModule,
   ],
   controllers: [],
