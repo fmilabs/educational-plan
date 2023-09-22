@@ -1,26 +1,33 @@
-export interface Domain {
-  id: string;
-  name: string;
-  specializations?: Specialization[];
+export enum StudyForm {
+  IF = 'IF',
+  ID = 'ID',
+  IFR = 'IFR',
 }
 
-export interface Specialization {
+export interface IDomain {
   id: string;
   name: string;
-  courses?: Course[];
+  studyForm: StudyForm;
+  specializations?: ISpecialization[];
 }
 
-export interface Course {
+export interface ISpecialization {
+  id: string;
+  name: string;
+  courses?: ICourse[];
+}
+
+export interface ICourse {
   id: string;
   name: string;
   credits: number;
   semester: number;
   maxStudents: number;
   curriculumPath: string;
-  specializations?: Specialization[];
+  specializations?: ISpecialization[];
 }
 
-export interface User {
+export interface IUser {
   id: string;
   firstName: string;
   lastName: string;
