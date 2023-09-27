@@ -1,0 +1,92 @@
+{
+  "name": "apps/educational-plan-frontend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/educational-plan-frontend/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "compiler": "babel",
+        "outputPath": "dist/apps/educational-plan-frontend",
+        "index": "apps/educational-plan-frontend/src/index.html",
+        "baseHref": "/",
+        "main": "apps/educational-plan-frontend/src/main.tsx",
+        "tsConfig": "apps/educational-plan-frontend/tsconfig.app.json",
+        "assets": [
+          "apps/educational-plan-frontend/src/favicon.ico",
+          "apps/educational-plan-frontend/src/assets"
+        ],
+        "styles": ["apps/educational-plan-frontend/src/styles.scss"],
+        "scripts": [],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/educational-plan-frontend/webpack.config.js"
+      },
+      "configurations": {
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        },
+        "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/educational-plan-frontend/src/environments/environment.ts",
+              "with": "apps/educational-plan-frontend/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/webpack:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "apps/educational-plan-frontend:build",
+        "hmr": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "apps/educational-plan-frontend:build:development"
+        },
+        "production": {
+          "buildTarget": "apps/educational-plan-frontend:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "apps/educational-plan-frontend/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/educational-plan-frontend/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}
