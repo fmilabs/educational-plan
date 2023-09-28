@@ -6,6 +6,7 @@ import { hashSync, compareSync } from "bcrypt";
 import { JwtPayloadDto } from './dto/JwtPayloadDto';
 import { User } from '../users/entities/user.entity';
 import { DataSource } from 'typeorm';
+import { AuthResponse } from '@educational-plan/types';
 
 @Injectable()
 export class AuthService {
@@ -54,10 +55,10 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User) {
+  async login(user: User): Promise<AuthResponse> {
     const payload: JwtPayloadDto = { email: user.email, role: user.role, sub: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
       user,
     };
   }

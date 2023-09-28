@@ -47,7 +47,15 @@ export enum Role {
   Teacher = 'teacher',
 }
 
+export interface JwtPayload extends IUser {
+  iat: number;
+  exp: number;
+}
 
+export interface AuthResponse {
+  accessToken: string;
+  user: IUser;
+}
 
 
 

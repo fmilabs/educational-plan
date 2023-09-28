@@ -21,9 +21,13 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { Route, Routes, Link } from 'react-router-dom';
 import useIsMobile from './hooks/is-mobile';
+import DomainsPage from './pages/domains-page';
+import AuthSnippet from './components/auth-snippet';
+import { AuthProvider } from './contexts/auth.context';
 
 const drawerWidth = 240;
 
@@ -64,82 +68,90 @@ export function App() {
     </div>
   );
 
+  const theme = createTheme({
+    palette: {
+      mode: 'light',
+      primary: {
+        main: '#3f51b5',
+      },
+      secondary: {
+        main: '#f50057',
+      },
+    },
+  });
+
+  const routes: React.ComponentProps<typeof Route>[] = [
+    { path: '/', element: <div>Home</div> },
+    { path: '/domains', element: <DomainsPage /> }
+  ]
+
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <Box sx={{ display: 'flex' }}>
+          <CssBaseline />
+          <AppBar
+            position="fixed"
+            sx={{
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+              ml: { sm: `${drawerWidth}px` },
+            }}
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Plan de învățământ
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      >
-          <Drawer
-            variant={isMobile ? 'temporary' : 'permanent'}
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: drawerWidth,
-            },
-          }}
-        >
-          {drawer}
-        </Drawer>
-      </Box>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-        }}
-      >
-        <Toolbar />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <div>
-                This is the generated root route.{' '}
-                <Link to="/page-2">Click here for page 2.</Link>
-              </div>
-            }
-          />
-          <Route
-            path="/page-2"
-            element={
-              <div>
-                <Link to="/">Click here to go back to root page.</Link>
-              </div>
-            }
-          />
-        </Routes>
-      </Box>
-    </Box>
+            <Toolbar>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2, display: { sm: 'none' } }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                Plan de învățământ
+              </Typography>
+              <AuthSnippet />
+            </Toolbar>
+          </AppBar>
+          <Box
+            component="nav"
+            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          >
+              <Drawer
+                variant={isMobile ? 'temporary' : 'permanent'}
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{
+                keepMounted: true, // Better open performance on mobile.
+              }}
+              sx={{
+                '& .MuiDrawer-paper': {
+                  boxSizing: 'border-box',
+                  width: drawerWidth,
+                },
+              }}
+            >
+              {drawer}
+            </Drawer>
+          </Box>
+          <Box
+            component="main"
+            sx={{
+              flexGrow: 1,
+              p: 3,
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+            }}
+          >
+            <Toolbar />
+            <Routes>
+              {routes.map(props => (
+                <Route key={props.path} {...props} />
+              ))}
+            </Routes>
+          </Box>
+        </Box>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
