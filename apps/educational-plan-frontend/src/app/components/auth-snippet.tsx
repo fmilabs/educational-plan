@@ -16,11 +16,10 @@ import { apiCall } from '../lib/utils';
 import { AuthResponse } from '@educational-plan/types';
 
 export default function AuthSnippet() {
-  const { state } = useAuth();
+  const { state, signOut } = useAuth();
 
   const [signInDialogOpen, setSignInDialogOpen] = React.useState(false);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<null | HTMLElement>(null);
-
 
   if (!state.user) {
     return (
@@ -38,15 +37,11 @@ export default function AuthSnippet() {
     action?.();
   };
 
-  const signOut = () => {
-    console.log('signOut');
-  };
-
   return (
     <>
       <Button color="inherit" onClick={(e) => setUserMenuAnchorEl(e.currentTarget)}>
         <AccountCircle />
-        <Typography variant="body1" sx={{ ml: 1 }}>
+        <Typography variant="body1" sx={{ ml: 0.5, textTransform: 'none' }}>
           {state.user.firstName} {state.user.lastName}
         </Typography>
       </Button>

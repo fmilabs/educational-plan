@@ -23,50 +23,45 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-import { Route, Routes, Link } from 'react-router-dom';
+import { Route, Routes, Link, useLocation } from 'react-router-dom';
 import useIsMobile from './hooks/is-mobile';
 import DomainsPage from './pages/domains-page';
 import AuthSnippet from './components/auth-snippet';
 import { AuthProvider } from './contexts/auth.context';
 
-const drawerWidth = 240;
+const routes: React.ComponentProps<typeof Route>[] = [
+  { path: '/', element: <div>Home</div> },
+  { path: '/domains', element: <DomainsPage /> },
+];
+
+interface DrawerItemProps {
+  title: string;
+  icon: React.ReactNode;
+  to: string;
+}
 
 export function App() {
   const isMobile = useIsMobile();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(!isMobile);
+  const drawerWidth = drawerOpen || isMobile ? 240 : 0;
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setDrawerOpen(!drawerOpen);
   };
 
-  const DrawerItem = ({ title, icon, to }: { title: string; icon: React.ReactNode; to: string; }) => (
-    <ListItem key={title} disablePadding>
-      <ListItemButton component={Link} to={to}>
-        <ListItemIcon>
-          {icon}
-        </ListItemIcon>
-        <ListItemText primary={title} />
-      </ListItemButton>
-    </ListItem>
-  );
+  const DrawerItem = ({ title, icon, to }: DrawerItemProps) => {
+    const route = useLocation();
+    const isCurrent = route.pathname === to;
 
-  const drawer = (
-    <div>
-      <Toolbar>
-        <Typography variant="h6" noWrap component="div">
-          Plan de învățământ
-        </Typography>
-      </Toolbar>
-      <Divider />
-      <List>
-        <DrawerItem title="Toate materiile" icon={<SchoolIcon />} to="/" />
-      </List>
-      <Divider />
-      <List>
-        <DrawerItem title="Materii" icon={<MailIcon />} to="/page-2" />
-      </List>
-    </div>
-  );
+    return (
+      <ListItem key={title} disablePadding>
+        <ListItemButton selected={isCurrent} component={Link} to={to}>
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText primary={title} />
+        </ListItemButton>
+      </ListItem>
+    );
+  };
 
   const theme = createTheme({
     palette: {
@@ -80,21 +75,15 @@ export function App() {
     },
   });
 
-  const routes: React.ComponentProps<typeof Route>[] = [
-    { path: '/', element: <div>Home</div> },
-    { path: '/domains', element: <DomainsPage /> }
-  ]
-
   return (
     <AuthProvider>
       <ThemeProvider theme={theme}>
-        <Box sx={{ display: 'flex' }}>
-          <CssBaseline />
+        <CssBaseline />
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <AppBar
-            position="fixed"
+            position="static"
             sx={{
-              width: { sm: `calc(100% - ${drawerWidth}px)` },
-              ml: { sm: `${drawerWidth}px` },
+              zIndex: (theme) => (isMobile ? 1 : theme.zIndex.drawer + 1),
             }}
           >
             <Toolbar>
@@ -103,51 +92,81 @@ export function App() {
                 aria-label="open drawer"
                 edge="start"
                 onClick={handleDrawerToggle}
-                sx={{ mr: 2, display: { sm: 'none' } }}
+                sx={{ mr: 2 }}
               >
                 <MenuIcon />
               </IconButton>
-              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{ flexGrow: 1 }}
+              >
                 Plan de învățământ
               </Typography>
               <AuthSnippet />
             </Toolbar>
           </AppBar>
-          <Box
-            component="nav"
-            sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-          >
-              <Drawer
-                variant={isMobile ? 'temporary' : 'permanent'}
-                open={mobileOpen}
-                onClose={handleDrawerToggle}
-                ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
-              }}
+          <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'auto' }}>
+            <Box
+              component="nav"
               sx={{
-                '& .MuiDrawer-paper': {
-                  boxSizing: 'border-box',
-                  width: drawerWidth,
-                },
+                width: { sm: drawerWidth },
+                flexShrink: { sm: 0 },
+                transition: 'width 0.2s',
               }}
             >
-              {drawer}
-            </Drawer>
-          </Box>
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: 3,
-              width: { sm: `calc(100% - ${drawerWidth}px)` },
-            }}
-          >
-            <Toolbar />
-            <Routes>
-              {routes.map(props => (
-                <Route key={props.path} {...props} />
-              ))}
-            </Routes>
+              <Drawer
+                variant={isMobile ? 'temporary' : 'persistent'}
+                open={drawerOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{
+                  keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                  '& .MuiDrawer-paper': {
+                    boxSizing: 'border-box',
+                    width: drawerWidth,
+                  },
+                  '& .MuiDrawer-root': {
+                    position: 'relative',
+                  },
+                  '& .MuiPaper-root': {
+                    position: 'relative',
+                  },
+                  height: '100%',
+                }}
+              >
+                <List>
+                  <DrawerItem
+                    title="Toate materiile"
+                    icon={<SchoolIcon />}
+                    to="/"
+                  />
+                </List>
+                <Divider />
+                <List>
+                  <DrawerItem
+                    title="Materii"
+                    icon={<MailIcon />}
+                    to="/page-2"
+                  />
+                </List>
+              </Drawer>
+            </Box>
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: 2,
+              }}
+            >
+              <Routes>
+                {routes.map((props) => (
+                  <Route key={props.path} {...props} />
+                ))}
+              </Routes>
+            </Box>
           </Box>
         </Box>
       </ThemeProvider>
