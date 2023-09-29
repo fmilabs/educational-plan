@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Typography from '@mui/material/Typography';
 import { apiCall, useApiResult } from '../lib/utils';
 import { DOMAIN_TYPES, IDomain, ISpecialization, STUDY_FORMS } from '@educational-plan/types';
@@ -21,11 +21,13 @@ import SpecializationDialog, { SpecializationDialogProps } from '../components/s
 import { useSnackbar } from 'notistack';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 import DomainDialog, { DomainDialogProps } from '../components/domain-dialog';
+import LoadingShade from '../components/loading-shade';
+import { Alert } from '@mui/material';
 
 export default function DomainPage() {
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams<{ id: string }>();
-  const [domain, _error, _loading, refresh] = useApiResult(() => apiCall<IDomain>(`domains/${id}`, 'GET'), [id]);
+  const [domain, error, loading, refresh] = useApiResult(() => apiCall<IDomain>(`domains/${id}`, 'GET'), [id]);
   const [specializationMenu, setSpecializationMenu] = React.useState<{ specialization: ISpecialization; anchor: HTMLElement } | null>(null);
   const [domainDialogProps, setDomainDialogProps] = React.useState<DomainDialogProps>({
     open: false,
@@ -76,6 +78,12 @@ export default function DomainPage() {
       enqueueSnackbar('A apărut o eroare.');
     }
   }
+
+  useEffect(() => {
+    if(!error) return;
+    enqueueSnackbar('A apărut o eroare.');
+    window.history.back();
+  }, [error]);
 
   if(!domain) {
     return null;
@@ -136,7 +144,7 @@ export default function DomainPage() {
           <ListItemText primary="Formă de învățământ" secondary={STUDY_FORMS[domain.studyForm]} />
         </ListItem>
       </List>
-      <Box sx={{ display: 'flex', mt: 2 }}>
+      <Box sx={{ display: 'flex', mt: 2, alignItems: 'flex-end' }}>
         <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
           Specializări
         </Typography>
@@ -144,6 +152,11 @@ export default function DomainPage() {
           Adăugați
         </Button>
       </Box>
+      {domain.specializations?.length == 0 && (
+        <Alert severity="info" sx={{ mt: 2 }}>
+          Nu există specializări.
+        </Alert>
+      )}
       <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
         {domain.specializations?.map((specialization) => (
           <ListItem disableGutters key={specialization.id}>

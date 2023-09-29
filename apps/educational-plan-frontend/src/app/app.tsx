@@ -167,6 +167,7 @@ export function App() {
                 sx={{
                   flexGrow: 1,
                   p: 2,
+                  position: 'relative',
                 }}
               >
                 <Routes>

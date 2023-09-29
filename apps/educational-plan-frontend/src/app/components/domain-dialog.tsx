@@ -16,7 +16,7 @@ import Select from '@mui/material/Select';
 
 export interface DomainDialogProps {
   open: boolean
-  onClose: (result: 'dismiss' | 'save') => void;
+  onClose: (result: 'dismiss' | 'save', domain?: IDomain) => void;
   domain?: IDomain;
 }
 
@@ -47,13 +47,14 @@ export default function DomainDialog({ open, onClose, domain }: DomainDialogProp
     e.preventDefault();
     try {
       setIsLoading(true);
+      let result: IDomain;
       if(!domain) {
-        await apiCall('domains', 'POST', domainForm);
+        result = await apiCall('domains', 'POST', domainForm);
       } else {
-        await apiCall(`domains/${domain.id}`, 'PUT', domainForm);
+        result = await apiCall(`domains/${domain.id}`, 'PUT', domainForm);
       }
       enqueueSnackbar('Domeniul a fost salvat.');
-      onClose('save');
+      onClose('save', result);
     } catch (error) {
       enqueueSnackbar('A apărut o eroare.');
     } finally {

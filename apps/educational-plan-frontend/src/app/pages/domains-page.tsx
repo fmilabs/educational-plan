@@ -1,3 +1,4 @@
+import React from 'react';
 import Typography from '@mui/material/Typography';
 import { apiCall, useApiResult } from '../lib/utils';
 import { DOMAIN_TYPES, IDomain } from '@educational-plan/types';
@@ -9,12 +10,27 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import DomainDialog, { DomainDialogProps } from '../components/domain-dialog';
+import Alert from '@mui/material/Alert';
+import { useNavigate } from 'react-router-dom';
+import LoadingShade from '../components/loading-shade';
 
 export default function DomainsPage() {
-  const [domains] = useApiResult(
+  const navigate = useNavigate();
+  const [domains, error, loading] = useApiResult(
     () => apiCall<IDomain[]>('domains', 'GET'),
     []
   );
+
+  const [domainDialogProps, setDomainDialogProps] = React.useState<DomainDialogProps>({
+    open: false,
+    onClose: (result, domain) => {
+      if(result === 'save') {
+        navigate(`/domains/${domain!.id}`);
+      }
+      setDomainDialogProps((props) => ({ ...props, open: false }));
+    }
+  });
 
   return (
     <>
@@ -22,7 +38,7 @@ export default function DomainsPage() {
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Domenii
         </Typography>
-        <Button variant="outlined">
+        <Button variant="outlined" onClick={() => setDomainDialogProps((props) => ({ ...props, open: true }))}>
           Adăugați
         </Button>
       </Box>
@@ -47,6 +63,18 @@ export default function DomainsPage() {
           </Grid>
         ))}
       </Grid>
+      {loading && <LoadingShade />}
+      {error && (
+        <Alert severity="error">
+          A apărut o eroare.
+        </Alert>
+      )}
+      {domains?.length == 0 && (
+        <Alert severity="info">
+          Nu există domenii.
+        </Alert>
+      )}
+      <DomainDialog {...domainDialogProps} />
     </>
   );
 }
