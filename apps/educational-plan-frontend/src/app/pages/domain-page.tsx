@@ -1,7 +1,7 @@
 import React from 'react';
 import Typography from '@mui/material/Typography';
 import { apiCall, useApiResult } from '../lib/utils';
-import { DOMAIN_TYPES, IDomain, ISpecialization } from '@educational-plan/types';
+import { DOMAIN_TYPES, IDomain, ISpecialization, STUDY_FORMS } from '@educational-plan/types';
 
 import Button from '@mui/material/Button';
 import { useParams } from 'react-router-dom';
@@ -20,12 +20,22 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import SpecializationDialog, { SpecializationDialogProps } from '../components/specialization-dialog';
 import { useSnackbar } from 'notistack';
 import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
+import DomainDialog, { DomainDialogProps } from '../components/domain-dialog';
 
 export default function DomainPage() {
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams<{ id: string }>();
   const [domain, _error, _loading, refresh] = useApiResult(() => apiCall<IDomain>(`domains/${id}`, 'GET'), [id]);
   const [specializationMenu, setSpecializationMenu] = React.useState<{ specialization: ISpecialization; anchor: HTMLElement } | null>(null);
+  const [domainDialogProps, setDomainDialogProps] = React.useState<DomainDialogProps>({
+    open: false,
+    onClose: (result) => {
+      if(result === 'save') {
+        refresh();
+      }
+      setDomainDialogProps((props) => ({ ...props, open: false, domain: undefined }));
+    }
+  });
   const [specializationDialogProps, setSpecializationDialogProps] = React.useState<SpecializationDialogProps>({
     open: false,
     onClose: (result) => {
@@ -56,6 +66,17 @@ export default function DomainPage() {
     }
   }
 
+  const deleteDomain = async (domain: IDomain) => {
+    if(!confirm(`Sunteți sigur că doriți să ștergeți domeniul ${domain.name}?`)) return;
+    try {
+      await apiCall(`domains/${domain.id}`, 'DELETE');
+      enqueueSnackbar('Domeniul a fost șters.');
+      window.history.back();
+    } catch (error) {
+      enqueueSnackbar('A apărut o eroare.');
+    }
+  }
+
   if(!domain) {
     return null;
   }
@@ -76,13 +97,23 @@ export default function DomainPage() {
                 <MoreIcon />
               </IconButton>
               <Menu {...bindMenu(popupState)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-                <MenuItem onClick={popupState.close}>
+                <MenuItem
+                  onClick={() => {
+                    popupState.close();
+                    setDomainDialogProps((props) => ({ ...props, open: true, domain }));
+                  }}
+                >
                   <ListItemIcon>
                     <EditIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText>Editați</ListItemText>
                 </MenuItem>
-                <MenuItem onClick={popupState.close}>
+                <MenuItem
+                  onClick={() => {
+                    popupState.close();
+                    deleteDomain(domain);
+                  }}
+                >
                   <ListItemIcon>
                     <DeleteIcon fontSize="small" />
                   </ListItemIcon>
@@ -102,7 +133,7 @@ export default function DomainPage() {
           <ListItemText primary="Tip" secondary={DOMAIN_TYPES[domain.type]} />
         </ListItem>
         <ListItem disableGutters>
-          <ListItemText primary="Formă de învățământ" secondary={domain.studyForm} />
+          <ListItemText primary="Formă de învățământ" secondary={STUDY_FORMS[domain.studyForm]} />
         </ListItem>
       </List>
       <Box sx={{ display: 'flex', mt: 2 }}>
@@ -145,6 +176,7 @@ export default function DomainPage() {
         </MenuItem>
       </Menu>
       <SpecializationDialog {...specializationDialogProps} />
+      <DomainDialog {...domainDialogProps} />
     </>
   );
 }
