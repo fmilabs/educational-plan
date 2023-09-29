@@ -22,16 +22,18 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
+import { SnackbarProvider } from 'notistack';
 import { Route, Routes, Link, useLocation } from 'react-router-dom';
 import useIsMobile from './hooks/is-mobile';
 import DomainsPage from './pages/domains-page';
 import AuthSnippet from './components/auth-snippet';
 import { AuthProvider } from './contexts/auth.context';
+import DomainPage from './pages/domain-page';
 
 const routes: React.ComponentProps<typeof Route>[] = [
   { path: '/', element: <div>Home</div> },
   { path: '/domains', element: <DomainsPage /> },
+  { path: '/domains/:id', element: <DomainPage /> },
 ];
 
 interface DrawerItemProps {
@@ -76,101 +78,108 @@ export function App() {
   });
 
   return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <AppBar
-            position="static"
-            sx={{
-              zIndex: (theme) => (isMobile ? 1 : theme.zIndex.drawer + 1),
-            }}
-          >
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ flexGrow: 1 }}
-              >
-                Plan de învățământ
-              </Typography>
-              <AuthSnippet />
-            </Toolbar>
-          </AppBar>
-          <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'auto' }}>
-            <Box
-              component="nav"
+    <SnackbarProvider anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }} maxSnack={1}>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <AppBar
+              position="static"
               sx={{
-                width: { sm: drawerWidth },
-                flexShrink: { sm: 0 },
-                transition: 'width 0.2s',
+                zIndex: (theme) => (isMobile ? 1 : theme.zIndex.drawer + 1),
               }}
             >
-              <Drawer
-                variant={isMobile ? 'temporary' : 'persistent'}
-                open={drawerOpen}
-                onClose={handleDrawerToggle}
-                ModalProps={{
-                  keepMounted: true, // Better open performance on mobile.
-                }}
+              <Toolbar>
+                <IconButton
+                  color="inherit"
+                  aria-label="open drawer"
+                  edge="start"
+                  onClick={handleDrawerToggle}
+                  sx={{ mr: 2 }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Typography
+                  variant="h6"
+                  noWrap
+                  component="div"
+                  sx={{ flexGrow: 1 }}
+                >
+                  Plan de învățământ
+                </Typography>
+                <AuthSnippet />
+              </Toolbar>
+            </AppBar>
+            <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'auto' }}>
+              <Box
+                component="nav"
                 sx={{
-                  '& .MuiDrawer-paper': {
-                    boxSizing: 'border-box',
-                    width: drawerWidth,
-                  },
-                  '& .MuiDrawer-root': {
-                    position: 'relative',
-                  },
-                  '& .MuiPaper-root': {
-                    position: 'relative',
-                  },
-                  height: '100%',
+                  width: { sm: drawerWidth },
+                  flexShrink: { sm: 0 },
+                  transition: 'width 0.2s',
                 }}
               >
-                <List>
-                  <DrawerItem
-                    title="Toate materiile"
-                    icon={<SchoolIcon />}
-                    to="/"
-                  />
-                </List>
-                <Divider />
-                <List>
-                  <DrawerItem
-                    title="Materii"
-                    icon={<MailIcon />}
-                    to="/page-2"
-                  />
-                </List>
-              </Drawer>
-            </Box>
-            <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                p: 2,
-              }}
-            >
-              <Routes>
-                {routes.map((props) => (
-                  <Route key={props.path} {...props} />
-                ))}
-              </Routes>
+                <Drawer
+                  variant={isMobile ? 'temporary' : 'persistent'}
+                  open={drawerOpen}
+                  onClose={handleDrawerToggle}
+                  ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                  }}
+                  sx={{
+                    '& .MuiDrawer-paper': {
+                      boxSizing: 'border-box',
+                      width: drawerWidth,
+                    },
+                    '& .MuiDrawer-root': {
+                      position: 'relative',
+                    },
+                    '& .MuiPaper-root': {
+                      position: 'relative',
+                    },
+                    height: '100%',
+                  }}
+                >
+                  <List>
+                    <DrawerItem
+                      title="Toate materiile"
+                      icon={<SchoolIcon />}
+                      to="/"
+                    />
+                  </List>
+                  <Divider />
+                  <List>
+                    <DrawerItem
+                      title="Materii"
+                      icon={<MailIcon />}
+                      to="/page-2"
+                    />
+                    <DrawerItem
+                      title="Domenii"
+                      icon={<MailIcon />}
+                      to="/domains"
+                    />
+                  </List>
+                </Drawer>
+              </Box>
+              <Box
+                component="main"
+                sx={{
+                  flexGrow: 1,
+                  p: 2,
+                }}
+              >
+                <Routes>
+                  {routes.map((props) => (
+                    <Route key={props.path} {...props} />
+                  ))}
+                </Routes>
+              </Box>
             </Box>
           </Box>
-        </Box>
-      </ThemeProvider>
-    </AuthProvider>
+        </ThemeProvider>
+      </AuthProvider>
+    </SnackbarProvider>
   );
 }
 

@@ -12,6 +12,9 @@ export class Specialization implements ISpecialization {
   @Column()
   name: string;
 
+  @Column()
+  studyYears: number;
+
   @ManyToOne(() => Domain, (domain) => domain.specializations, { onDelete: 'CASCADE' })
   domain: Domain;
 

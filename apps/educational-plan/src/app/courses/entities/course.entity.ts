@@ -15,6 +15,9 @@ export class Course implements ICourse {
   credits: number;
 
   @Column()
+  year: number;
+
+  @Column()
   semester: number;
 
   @Column({ nullable: true })

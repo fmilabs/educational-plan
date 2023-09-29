@@ -12,6 +12,10 @@ export class CreateCourseDto {
 
   @IsNumber()
   @Min(1)
+  year: number;
+
+  @IsNumber()
+  @Min(1)
   semester: number;
 
   maxStudents: number | null;

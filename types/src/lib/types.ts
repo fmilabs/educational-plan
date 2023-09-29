@@ -20,6 +20,7 @@ export interface IDomain {
 export interface ISpecialization {
   id: string;
   name: string;
+  studyYears: number;
   courses?: ICourse[];
 }
 
@@ -27,6 +28,7 @@ export interface ICourse {
   id: string;
   name: string;
   credits: number;
+  year: number;
   semester: number;
   maxStudents: number | null;
   curriculumPath: string;
@@ -56,6 +58,17 @@ export interface AuthResponse {
   accessToken: string;
   user: IUser;
 }
+
+export const DOMAIN_TYPES = {
+  [DomainType.Bachelor]: 'Licență',
+  [DomainType.Master]: 'Master',
+} as const;
+
+export const STUDY_FORMS = {
+  [StudyForm.IF]: 'Învățământ cu frecvență',
+  [StudyForm.ID]: 'Învățământ la distanță',
+  [StudyForm.IFR]: 'Învățământ cu frecvență redusă',
+} as const;
 
 
 
