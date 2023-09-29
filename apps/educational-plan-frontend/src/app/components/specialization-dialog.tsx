@@ -51,7 +51,7 @@ export default function SpecializationDialog({ open, onClose, specialization }: 
       } else {
         await apiCall(`specializations/${specialization.id}`, 'PUT', specializationForm);
       }
-      enqueueSnackbar('Specializarea a fost salvată.');
+      enqueueSnackbar('Programul de studiu a fost salvat.');
       onClose('save');
     } catch (error) {
       enqueueSnackbar('A apărut o eroare.');
@@ -64,7 +64,7 @@ export default function SpecializationDialog({ open, onClose, specialization }: 
     <Dialog open={open} onClose={() => onClose('dismiss')}>
       { isLoading && <LoadingShade mode='linear' /> }
       <form id="specializationForm" onSubmit={saveSpecialization}>
-        <DialogTitle>{!specialization ? 'Adăugare specializare' : 'Editare specializare' }</DialogTitle>
+        <DialogTitle>{!specialization ? 'Adăugare program de studiu' : 'Editare program de studiu' }</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus

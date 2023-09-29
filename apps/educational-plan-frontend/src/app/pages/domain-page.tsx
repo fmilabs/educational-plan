@@ -146,7 +146,7 @@ export default function DomainPage() {
       </List>
       <Box sx={{ display: 'flex', mt: 2, alignItems: 'flex-end' }}>
         <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
-          Specializări
+          Programe de studii
         </Typography>
         <Button variant="outlined" onClick={() => setSpecializationDialogProps((props) => ({ ...props, open: true }))}>
           Adăugați
@@ -154,7 +154,7 @@ export default function DomainPage() {
       </Box>
       {domain.specializations?.length == 0 && (
         <Alert severity="info" sx={{ mt: 2 }}>
-          Nu există specializări.
+          Nu există programe de studii.
         </Alert>
       )}
       <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
