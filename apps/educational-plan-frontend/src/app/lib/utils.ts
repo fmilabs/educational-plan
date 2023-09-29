@@ -57,3 +57,30 @@ export function useApiResult<R>(callFactory: () => Promise<R>, deps: any[] = [])
   React.useEffect(refreshData, [refresh]);
   return [result, error, loading, requestRefresh] as const;
 }
+
+export function getMediaUrl(url: string) {
+  return BACKEND_URL + url;
+}
+
+export function romanize(num: number) {
+  let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1}, roman = '',i;
+  for (i in lookup) {
+    // @ts-ignore
+    while (num >= lookup[i]) {
+      roman += i;
+      // @ts-ignore
+      num -= lookup[i];
+    }
+  }
+  return roman;
+}
+
+export function filterObject<T extends object>(obj: T, predicate: (value: any, key: string) => boolean) {
+  const result = {} as T;
+  for(const key in obj) {
+    if(predicate(obj[key], key)) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}

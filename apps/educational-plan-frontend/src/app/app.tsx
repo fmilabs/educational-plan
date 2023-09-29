@@ -29,11 +29,15 @@ import DomainsPage from './pages/domains-page';
 import AuthSnippet from './components/auth-snippet';
 import { AuthProvider } from './contexts/auth.context';
 import DomainPage from './pages/domain-page';
+import MyCoursesPage from './pages/my-courses-page';
+import CoursePage from './pages/course-page';
 
 const routes: React.ComponentProps<typeof Route>[] = [
   { path: '/', element: <div>Home</div> },
   { path: '/domains', element: <DomainsPage /> },
   { path: '/domains/:id', element: <DomainPage /> },
+  { path: '/my-courses', element: <MyCoursesPage /> },
+  { path: '/courses/:id', element: <CoursePage /> },
 ];
 
 interface DrawerItemProps {
@@ -150,9 +154,9 @@ export function App() {
                   <Divider />
                   <List>
                     <DrawerItem
-                      title="Materii"
+                      title="Materiile dvs."
                       icon={<MailIcon />}
-                      to="/page-2"
+                      to="/my-courses"
                     />
                     <DrawerItem
                       title="Domenii"

@@ -16,6 +16,7 @@ export class CoursesController {
   @Post()
   async create(@Body() courseDto: CreateCourseDto, @CurrentUser() user: User) {
     if(user.role != Role.Admin || !courseDto.userId) {
+      console.log(user);
       courseDto.userId = user.id;
     }
     return this.coursesService.create(courseDto);

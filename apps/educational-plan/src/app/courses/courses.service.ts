@@ -38,7 +38,8 @@ export class CoursesService {
 
   async create(courseDto: CreateCourseDto) {
     const specialization = await this.specializationsService.findOne(courseDto.specializationId);
-    return this.coursesRepository.save({ ...courseDto, specialization });
+    const user = await this.usersService.findOne(courseDto.userId);
+    return this.coursesRepository.save({ ...courseDto, specialization, user });
   }
 
   async update(id: string, courseDto: UpdateCourseDto) {
