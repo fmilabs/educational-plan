@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID, Min } from 'class-validator';
 
 
 export class UpdateCourseDto {
@@ -20,8 +20,8 @@ export class UpdateCourseDto {
 
   maxStudents: number | null;
 
-  @IsArray()
-  @ArrayNotEmpty()
-  specializationIds: string[];
+  @IsNotEmpty()
+  @IsUUID()
+  specializationId: string;
 
 }

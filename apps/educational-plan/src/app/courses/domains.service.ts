@@ -13,11 +13,11 @@ export class DomainsService {
   ) {}
 
   async findAll() {
-    return this.domainsRepository.find();
+    return this.domainsRepository.find({ relations: ['specializations'] });
   }
 
   async findOne(id: string) {
-    const domain = await this.domainsRepository.findOne({ where: { id } });
+    const domain = await this.domainsRepository.findOne({ where: { id }, relations: ['specializations'] });
     if(!domain) {
       throw new NotFoundException(`Domeniul cu ID-ul ${id} nu a fost găsit.`);
     }

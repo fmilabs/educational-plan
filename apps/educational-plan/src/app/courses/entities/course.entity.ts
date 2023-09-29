@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToMany, JoinTable } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { ICourse } from "@educational-plan/types";
 import { Specialization } from "./specialization.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity()
 export class Course implements ICourse {
@@ -26,8 +27,10 @@ export class Course implements ICourse {
   @Column({ nullable: true })
   curriculumPath: string | null;
 
-  @ManyToMany(() => Specialization)
-  @JoinTable()
-  specializations?: Specialization[];
+  @ManyToOne(() => Specialization, (specialization) => specialization.courses, { onDelete: 'CASCADE', eager: true })
+  specialization: Specialization;
+
+  @ManyToOne(() => User, (user) => user.courses, { onDelete: 'CASCADE', eager: true })
+  user: User;
 
 }

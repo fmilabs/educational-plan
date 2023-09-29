@@ -42,7 +42,7 @@ export default function DomainsPage() {
           Adăugați
         </Button>
       </Box>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         {domains?.map((domain) => (
           <Grid item sm={4} md={4} key={domain.id}>
             <Card sx={{ width: '100%' }}>

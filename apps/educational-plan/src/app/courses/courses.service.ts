@@ -8,6 +8,7 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import * as uuid from "uuid";
 import fs from "fs";
 import { safePath } from '../lib/util';
+import { UsersService } from '../users/users.service';
 
 
 @Injectable()
@@ -15,10 +16,16 @@ export class CoursesService {
   constructor(
     @InjectRepository(Course) private coursesRepository: Repository<Course>,
     private readonly specializationsService: SpecializationsService,
+    private readonly usersService: UsersService,
   ) {}
 
   async findAll() {
     return this.coursesRepository.find();
+  }
+
+  async findAllByUserId(userId: string) {
+    const user = await this.usersService.findOne(userId);
+    return this.coursesRepository.find({ where: { user } });
   }
 
   async findOne(id: string) {
@@ -30,14 +37,14 @@ export class CoursesService {
   }
 
   async create(courseDto: CreateCourseDto) {
-    const specializations = await this.specializationsService.findAllByIds(courseDto.specializationIds);
-    return this.coursesRepository.save({ ...courseDto, specializations });
+    const specialization = await this.specializationsService.findOne(courseDto.specializationId);
+    return this.coursesRepository.save({ ...courseDto, specialization });
   }
 
   async update(id: string, courseDto: UpdateCourseDto) {
     const course = await this.findOne(id);
-    const specializations = await this.specializationsService.findAllByIds(courseDto.specializationIds);
-    return this.coursesRepository.save({ ...course, ...courseDto, specializations });
+    const specialization = await this.specializationsService.findOne(courseDto.specializationId);
+    return this.coursesRepository.save({ ...course, ...courseDto, specialization });
   }
 
   async updateCurriculumFile(id: string, curricullumFile: Buffer) {

@@ -17,7 +17,7 @@ export class Domain implements IDomain {
   @Column("enum", { enum: DomainType })
   type: DomainType;
 
-  @OneToMany(type => Specialization, specialization => specialization.domain, { eager: true })
+  @OneToMany(type => Specialization, specialization => specialization.domain)
   specializations: Specialization[];
 
 }

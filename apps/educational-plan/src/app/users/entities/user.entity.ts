@@ -1,5 +1,6 @@
 import { Role } from "@educational-plan/types";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Course } from "../../courses/entities/course.entity";
 
 @Entity()
 export class User {
@@ -21,5 +22,8 @@ export class User {
 
   @Column("enum", { enum: Role })
   role: Role;
+
+  @OneToMany(() => Course, (course) => course.user)
+  courses?: Course[];
 
 }

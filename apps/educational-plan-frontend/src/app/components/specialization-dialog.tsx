@@ -17,7 +17,7 @@ export interface SpecializationDialogProps {
   specialization?: ISpecialization;
 }
 
-type SpecializationForm = Omit<ISpecialization, 'id'> & { domainId: string };
+type SpecializationForm = Omit<ISpecialization, 'id' | 'domain'> & { domainId: string };
 
 export default function SpecializationDialog({ open, onClose, specialization }: SpecializationDialogProps) {
   const { enqueueSnackbar } = useSnackbar();

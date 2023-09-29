@@ -21,6 +21,7 @@ export interface ISpecialization {
   id: string;
   name: string;
   studyYears: number;
+  domain: IDomain;
   courses?: ICourse[];
 }
 
@@ -32,7 +33,8 @@ export interface ICourse {
   semester: number;
   maxStudents: number | null;
   curriculumPath: string;
-  specializations?: ISpecialization[];
+  specialization: ISpecialization;
+  user: IUser;
 }
 
 export interface IUser {

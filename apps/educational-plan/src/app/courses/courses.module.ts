@@ -9,10 +9,12 @@ import { SpecializationsController } from './specializations.controller';
 import { Course } from './entities/course.entity';
 import { CoursesController } from './courses.controller';
 import { CoursesService } from './courses.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Domain, Specialization, Course]),
+    UsersModule,
   ],
   controllers: [DomainsController, SpecializationsController, CoursesController],
   providers: [DomainsService, SpecializationsService, CoursesService],

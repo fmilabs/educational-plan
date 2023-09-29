@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, ManyToMany, OneToMany } from "typeorm";
 import { Domain } from "./domain.entity";
 import { ISpecialization } from "@educational-plan/types";
 import { Course } from "./course.entity";
@@ -15,10 +15,10 @@ export class Specialization implements ISpecialization {
   @Column()
   studyYears: number;
 
-  @ManyToOne(() => Domain, (domain) => domain.specializations, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Domain, (domain) => domain.specializations, { onDelete: 'CASCADE', eager: true })
   domain: Domain;
 
-  @ManyToMany(() => Course)
-  courses: Course[];
+  @OneToMany(() => Course, (course) => course.specialization)
+  courses?: Course[];
 
 }
