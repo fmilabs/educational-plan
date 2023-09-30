@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 import { Role } from '@educational-plan/types';
+import { UserQueryDto } from './dto/user-query.dto';
 
 @Controller('users')
 @Roles(Role.Admin)
@@ -16,8 +17,8 @@ export class UsersController {
   }
 
   @Get()
-  async findAll() {
-    return this.usersService.findAll();
+  async findAll(@Query() query: UserQueryDto = {}) {
+    return this.usersService.findAll(query);
   }
 
   @Get(':id')

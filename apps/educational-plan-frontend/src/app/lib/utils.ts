@@ -6,7 +6,7 @@ export function classNames(...classes: any[]) {
 
 const BACKEND_URL = "http://localhost:3000";
 
-export async function apiCall<R, D = any>(url: string, method: string, data?: D) {
+export async function apiCall<R, D = any>(url: string, method: string, data?: D, fetchOptions?: RequestInit) {
 
   const resultUrl = BACKEND_URL + (url.startsWith("/") ? url : "/" + url);
   let headers = new Headers();
@@ -19,7 +19,12 @@ export async function apiCall<R, D = any>(url: string, method: string, data?: D)
     headers.append("Authorization", `Bearer ${token}`);
   }
   return new Promise<R>((resolve, reject) => {
-    fetch(resultUrl, { method, headers, body: data instanceof FormData ? data : JSON.stringify(data) })
+    fetch(resultUrl, {
+      method,
+      headers,
+      body: data instanceof FormData ? data : JSON.stringify(data),
+      ...fetchOptions,
+    })
       .then(async (result) => {
         if(!result.ok) {
           reject(await result.json());
@@ -92,4 +97,25 @@ export function groupBy<T>(collection: T[], getKey: ((item: T) => string | numbe
     storage[group].push(item);
     return storage;
   }, {} as Record<string, T[]>);
+}
+
+export function getApiError(error: unknown): string {
+  if(!error) {
+    return "A apărut o eroare.";
+  }
+  if(typeof error == "string") {
+    return error;
+  }
+  if(typeof error == 'object') {
+    if('message' in error) {
+      if(Array.isArray(error.message)) {
+        return error.message.join("\n");
+      }
+      return error.message as string;
+    }
+    if('error' in error) {
+      return getApiError(error.error);
+    }
+  }
+  return "A apărut o eroare.";
 }

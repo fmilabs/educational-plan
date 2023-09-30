@@ -17,6 +17,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import CategoryIcon from '@mui/icons-material/Category';
+import PeopleIcon from '@mui/icons-material/People';
 import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
 import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
@@ -34,6 +35,7 @@ import MyCoursesPage from './pages/my-courses-page';
 import CoursePage from './pages/course-page';
 import AllCoursesPage from './pages/all-courses-page';
 import LoadingShade from './components/loading-shade';
+import UsersPage from './pages/users-page';
 
 interface DrawerItemProps {
   title: string;
@@ -102,6 +104,7 @@ export function AuthApp() {
     if(authState.user?.role === 'admin') {
       routes.push({ path: '/domains', element: <DomainsPage /> });
       routes.push({ path: '/domains/:id', element: <DomainPage /> });
+      routes.push({ path: '/users', element: <UsersPage /> })
     }
     routes.push({ path: '*', element: <Navigate to="/" /> });
     return routes;
@@ -200,6 +203,11 @@ export function AuthApp() {
                         title="Domenii"
                         icon={<CategoryIcon />}
                         to="/domains"
+                      />
+                      <DrawerItem
+                        title="Utilizatori"
+                        icon={<PeopleIcon />}
+                        to="/users"
                       />
                     </List>
                   )}

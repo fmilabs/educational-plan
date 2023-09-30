@@ -1,3 +1,8 @@
+export type Paginated<T> = {
+  data: T[];
+  count: number;
+}
+
 export enum StudyForm {
   IF = 'IF',
   ID = 'ID',
@@ -43,7 +48,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
   role: Role;
 }
 
@@ -73,5 +78,7 @@ export const STUDY_FORMS = {
   [StudyForm.IFR]: 'Învățământ cu frecvență redusă',
 } as const;
 
-
-
+export const ROLES = {
+  [Role.Admin]: 'Administrator',
+  [Role.Teacher]: 'Profesor',
+} as const;
