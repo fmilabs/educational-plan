@@ -19,6 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import CategoryIcon from '@mui/icons-material/Category';
 import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
+import DarkModeIcon from '@mui/icons-material/DarkModeOutlined';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -72,9 +73,11 @@ export function AuthApp() {
     );
   };
 
+  const [darkMode, setDarkMode] = React.useState(getDarkModePref());
+
   const theme = createTheme({
     palette: {
-      mode: 'light',
+      mode: darkMode? 'dark' : 'light',
       primary: {
         main: '#3f51b5',
       },
@@ -135,6 +138,12 @@ export function AuthApp() {
               >
                 Plan de învățământ
               </Typography>
+              <IconButton onClick={() => {
+                localStorage.setItem('darkMode', (!darkMode).toString());
+                setDarkMode(!darkMode);
+              }}>
+                <DarkModeIcon />
+              </IconButton>
               <AuthSnippet />
             </Toolbar>
           </AppBar>
@@ -217,6 +226,13 @@ export function AuthApp() {
       </ThemeProvider>
     </SnackbarProvider>
   );
+}
+
+function getDarkModePref() {
+  const darkModePref = localStorage.getItem('darkMode');
+  if(darkModePref === 'true') return true;
+  if(darkModePref === 'false') return false;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
 export default App;

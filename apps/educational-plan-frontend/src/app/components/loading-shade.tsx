@@ -8,7 +8,7 @@ interface LoadingShadeProps {
   mode?: 'circular' | 'linear';
 }
 
-export default function LoadingShade({ backdropColor = '#fff', backdropOpacity = 0.5, mode = 'circular' }: LoadingShadeProps) {
+export default function LoadingShade({ backdropColor = 'background.default', backdropOpacity = 0.5, mode = 'circular' }: LoadingShadeProps) {
 
   const flexProps = mode === 'circular' ? { justifyContent: 'center', alignItems: 'center' } : {};
 
