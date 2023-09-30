@@ -24,6 +24,7 @@ import PopupState, { bindTrigger, bindMenu } from 'material-ui-popup-state';
 import { Alert } from '@mui/material';
 import { useAuth } from '../contexts/auth.context';
 import CourseDialog, { CourseDialogProps } from '../components/course-dialog';
+import LoadingShade from '../components/loading-shade';
 
 export default function CoursePage() {
   const { enqueueSnackbar } = useSnackbar();
@@ -57,8 +58,8 @@ export default function CoursePage() {
     window.history.back();
   }, [error]);
 
-  if(!course) {
-    return null;
+  if(!course || loading) {
+    return <LoadingShade />;
   }
 
   const UploadCurriculumButton = ({ reupload }: { reupload?: boolean }) => {

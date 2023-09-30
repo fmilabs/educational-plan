@@ -84,3 +84,12 @@ export function filterObject<T extends object>(obj: T, predicate: (value: any, k
   }
   return result;
 }
+
+export function groupBy<T>(collection: T[], getKey: ((item: T) => string | number)) {
+  return collection.reduce((storage, item) => {
+    const group = getKey(item);
+    storage[group] = storage[group] || [];
+    storage[group].push(item);
+    return storage;
+  }, {} as Record<string, T[]>);
+}

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { SpecializationsService } from './specializations.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -9,7 +9,7 @@ import * as uuid from "uuid";
 import fs from "fs";
 import { safePath } from '../lib/util';
 import { UsersService } from '../users/users.service';
-
+import { CourseQueryDto } from './dto/course-query.dto';
 
 @Injectable()
 export class CoursesService {
@@ -19,8 +19,12 @@ export class CoursesService {
     private readonly usersService: UsersService,
   ) {}
 
-  async findAll() {
-    return this.coursesRepository.find();
+  async findAll(courseQueryDto?: CourseQueryDto) {
+    const { specializationId, ...where } = courseQueryDto as Record<string, any>;
+    if (specializationId) {
+      where.specialization = { id: courseQueryDto.specializationId };
+    }
+    return this.coursesRepository.find({ where });
   }
 
   async findAllByUserId(userId: string) {

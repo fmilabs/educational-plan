@@ -31,9 +31,10 @@ import { AuthProvider } from './contexts/auth.context';
 import DomainPage from './pages/domain-page';
 import MyCoursesPage from './pages/my-courses-page';
 import CoursePage from './pages/course-page';
+import AllCoursesPage from './pages/all-courses-page';
 
 const routes: React.ComponentProps<typeof Route>[] = [
-  { path: '/', element: <div>Home</div> },
+  { path: '/', element: <AllCoursesPage /> },
   { path: '/domains', element: <DomainsPage /> },
   { path: '/domains/:id', element: <DomainPage /> },
   { path: '/my-courses', element: <MyCoursesPage /> },
@@ -114,7 +115,7 @@ export function App() {
                 <AuthSnippet />
               </Toolbar>
             </AppBar>
-            <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'auto' }}>
+            <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
               <Box
                 component="nav"
                 sx={{
@@ -172,6 +173,7 @@ export function App() {
                   flexGrow: 1,
                   p: 2,
                   position: 'relative',
+                  overflow: 'auto',
                 }}
               >
                 <Routes>

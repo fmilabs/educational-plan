@@ -3,9 +3,12 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { SpecializationsService } from './specializations.service';
 import { CreateSpecializationDto } from './dto/create-specialization.dto';
 import { UpdateSpecializationDto } from './dto/update-specialization.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@educational-plan/types';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('specializations')
-// @Roles(Role.Admin)
+@Roles(Role.Admin)
 export class SpecializationsController {
   constructor(private readonly specializationsService: SpecializationsService) {}
 
@@ -15,11 +18,15 @@ export class SpecializationsController {
   }
 
   @Get()
+  @Roles()
+  @Public()
   async findAll() {
     return this.specializationsService.findAll();
   }
 
   @Get(':id')
+  @Roles()
+  @Public()
   async findOne(@Param('id') id: string) {
     return this.specializationsService.findOne(id);
   }
