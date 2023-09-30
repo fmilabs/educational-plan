@@ -31,6 +31,7 @@ export interface ICourse {
   credits: number;
   year: number;
   semester: number;
+  optional: boolean;
   maxStudents: number | null;
   curriculumPath: string;
   specialization: ISpecialization;

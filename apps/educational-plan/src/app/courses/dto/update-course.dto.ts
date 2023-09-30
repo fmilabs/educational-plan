@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsUUID, Min } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
 
 
 export class UpdateCourseDto {
@@ -18,6 +18,10 @@ export class UpdateCourseDto {
   @Min(1)
   semester: number;
 
+  @IsBoolean()
+  optional: boolean;
+
+  @IsOptional()
   maxStudents: number | null;
 
   @IsNotEmpty()

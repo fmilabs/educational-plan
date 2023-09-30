@@ -61,7 +61,7 @@ export default function AllCoursesPage() {
   }, [specializationId, year, semester]);
 
   const groupedCourses = React.useMemo(() => (
-    groupBy(courses || [], (course) => course ? 'mandatory' : 'optional')
+    groupBy(courses || [], (course) => !course.optional ? 'mandatory' : 'optional')
   ), [courses]);
 
   if(loadingDomains) {

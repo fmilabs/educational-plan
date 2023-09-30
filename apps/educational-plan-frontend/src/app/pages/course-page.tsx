@@ -166,6 +166,11 @@ export default function CoursePage() {
         <ListItem disableGutters>
           <ListItemText primary="Credite" secondary={course.credits} />
         </ListItem>
+        {course.optional && (
+          <ListItem disableGutters>
+            <ListItemText primary="Opțional" secondary="Da" />
+          </ListItem>
+        )}
         {course.maxStudents !== null && (
           <ListItem disableGutters>
             <ListItemText primary="Număr maxim de studenți" secondary={course.maxStudents} />

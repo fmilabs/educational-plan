@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ListSubheader from '@mui/material/ListSubheader';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import { FormControlLabel, Switch } from '@mui/material';
 
 export interface CourseDialogProps {
   open: boolean
@@ -28,6 +29,7 @@ function getInitialValues(course?: ICourse): CourseForm {
     credits: course?.credits || '' as any,
     year: course?.year || '' as any,
     semester: course?.semester || '' as any,
+    optional: course?.optional || false,
     maxStudents: course?.maxStudents || '' as any,
     specializationId: course?.specialization?.id || '' as any,
   }
@@ -54,7 +56,7 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
   }, [course, open]);
 
   function setCourseFormField<K extends keyof CourseForm>(field: K, value: CourseForm[K]) {
-    setCourseForm({ ...courseForm, [field]: value });
+    setCourseForm((courseForm) => ({ ...courseForm, [field]: value }));
   }
 
   async function saveCourse(e: React.FormEvent<HTMLFormElement>) {
@@ -154,16 +156,30 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
               ))}
             </Select>
           </FormControl>
-          <TextField
-            name='courseMaxStudents'
-            margin="dense"
-            label="Număr maxim de studenți"
-            type="number"
-            fullWidth
-            InputProps={{ inputProps: { min: 0, max: 500 } }}
-            value={courseForm.maxStudents}
-            onChange={(e) => setCourseFormField('maxStudents', +e.target.value || '' as any)}
+          <FormControlLabel
+            control={
+              <Switch
+                checked={courseForm.optional}
+                onChange={(e) => {
+                  setCourseFormField('optional', e.target.checked);
+                  if(!e.target.checked) setCourseFormField('maxStudents', '' as any);
+                }}
+              />
+            }
+            label="Curs opțional"
           />
+          {courseForm.optional && (
+            <TextField
+              name='courseMaxStudents'
+              margin="dense"
+              label="Număr maxim de studenți"
+              type="number"
+              fullWidth
+              InputProps={{ inputProps: { min: 0, max: 500 } }}
+              value={courseForm.maxStudents}
+              onChange={(e) => setCourseFormField('maxStudents', +e.target.value || '' as any)}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => onClose('dismiss')}>Anulați</Button>

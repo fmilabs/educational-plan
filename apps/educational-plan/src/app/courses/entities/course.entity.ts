@@ -21,6 +21,9 @@ export class Course implements ICourse {
   @Column()
   semester: number;
 
+  @Column()
+  optional: boolean;
+
   @Column({ nullable: true })
   maxStudents: number | null;
 
