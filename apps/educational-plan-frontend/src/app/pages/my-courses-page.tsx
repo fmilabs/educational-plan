@@ -36,7 +36,7 @@ export default function MyCoursesPage() {
     <>
       <Box sx={{ display: 'flex', mb: 2 }}>
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
-          Materiile dvs.
+          Cursurile dvs.
         </Typography>
         <Button variant="outlined" onClick={() => setCourseDialogProps((props) => ({ ...props, open: true }))}>
           Adăugați
@@ -74,7 +74,7 @@ export default function MyCoursesPage() {
       )}
       {courses?.length == 0 && (
         <Alert severity="info">
-          Nu ați adăugat materii.
+          Nu ați adăugat cursuri.
         </Alert>
       )}
       <CourseDialog {...courseDialogProps} />

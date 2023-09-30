@@ -180,7 +180,7 @@ export function AuthApp() {
                 >
                   <List>
                     <DrawerItem
-                      title="Toate materiile"
+                      title="Toate cursurile"
                       icon={<SchoolIcon />}
                       to="/"
                     />
@@ -188,7 +188,7 @@ export function AuthApp() {
                   <Divider />
                   <List>
                     <DrawerItem
-                      title="Materiile dvs."
+                      title="Cursurile dvs."
                       icon={<SchoolIcon />}
                       to="/my-courses"
                     />
