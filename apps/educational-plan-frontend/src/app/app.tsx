@@ -11,35 +11,28 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import SchoolIcon from '@mui/icons-material/School';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import MailIcon from '@mui/icons-material/Mail';
+import CategoryIcon from '@mui/icons-material/Category';
 import MenuIcon from '@mui/icons-material/Menu';
+import SchoolIcon from '@mui/icons-material/School';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider } from 'notistack';
-import { Route, Routes, Link, useLocation } from 'react-router-dom';
+import { Route, Routes, Link, useLocation, Navigate } from 'react-router-dom';
 import useIsMobile from './hooks/is-mobile';
 import DomainsPage from './pages/domains-page';
 import AuthSnippet from './components/auth-snippet';
-import { AuthProvider } from './contexts/auth.context';
+import { AuthProvider, useAuth } from './contexts/auth.context';
 import DomainPage from './pages/domain-page';
 import MyCoursesPage from './pages/my-courses-page';
 import CoursePage from './pages/course-page';
 import AllCoursesPage from './pages/all-courses-page';
-
-const routes: React.ComponentProps<typeof Route>[] = [
-  { path: '/', element: <AllCoursesPage /> },
-  { path: '/domains', element: <DomainsPage /> },
-  { path: '/domains/:id', element: <DomainPage /> },
-  { path: '/my-courses', element: <MyCoursesPage /> },
-  { path: '/courses/:id', element: <CoursePage /> },
-];
+import LoadingShade from './components/loading-shade';
 
 interface DrawerItemProps {
   title: string;
@@ -48,6 +41,15 @@ interface DrawerItemProps {
 }
 
 export function App() {
+  return (
+    <AuthProvider>
+      <AuthApp />
+    </AuthProvider>
+  );
+}
+
+export function AuthApp() {
+  const { state: authState } = useAuth();
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = React.useState(!isMobile);
   const drawerWidth = drawerOpen || isMobile ? 240 : 0;
@@ -82,19 +84,39 @@ export function App() {
     },
   });
 
+  const routes = React.useMemo<React.ComponentProps<typeof Route>[]>(() => {
+    const routes: React.ComponentProps<typeof Route>[] = [
+      { path: '/', element: <AllCoursesPage /> },
+      { path: '/courses/:id', element: <CoursePage /> },
+    ];
+    if(authState.isLoading) {
+      routes.push({ path: '*', element: <LoadingShade /> });
+      return routes;
+    }
+    if(authState.user) {
+      routes.push({ path: '/my-courses', element: <MyCoursesPage /> });
+    }
+    if(authState.user?.role === 'admin') {
+      routes.push({ path: '/domains', element: <DomainsPage /> });
+      routes.push({ path: '/domains/:id', element: <DomainPage /> });
+    }
+    routes.push({ path: '*', element: <Navigate to="/" /> });
+    return routes;
+  }, [authState]);
+
   return (
     <SnackbarProvider anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }} maxSnack={1}>
-      <AuthProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <AppBar
-              position="static"
-              sx={{
-                zIndex: (theme) => (isMobile ? 1 : theme.zIndex.drawer + 1),
-              }}
-            >
-              <Toolbar>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <AppBar
+            position="static"
+            sx={{
+              zIndex: (theme) => (isMobile ? 1 : theme.zIndex.drawer + 1),
+            }}
+          >
+            <Toolbar>
+              {authState.user && (
                 <IconButton
                   color="inherit"
                   aria-label="open drawer"
@@ -104,18 +126,20 @@ export function App() {
                 >
                   <MenuIcon />
                 </IconButton>
-                <Typography
-                  variant="h6"
-                  noWrap
-                  component="div"
-                  sx={{ flexGrow: 1 }}
-                >
-                  Plan de învățământ
-                </Typography>
-                <AuthSnippet />
-              </Toolbar>
-            </AppBar>
-            <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+              )}
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{ flexGrow: 1 }}
+              >
+                Plan de învățământ
+              </Typography>
+              <AuthSnippet />
+            </Toolbar>
+          </AppBar>
+          <Box sx={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+            {authState.user && (
               <Box
                 component="nav"
                 sx={{
@@ -156,36 +180,41 @@ export function App() {
                   <List>
                     <DrawerItem
                       title="Materiile dvs."
-                      icon={<MailIcon />}
+                      icon={<SchoolIcon />}
                       to="/my-courses"
                     />
-                    <DrawerItem
-                      title="Domenii"
-                      icon={<MailIcon />}
-                      to="/domains"
-                    />
                   </List>
+                  <Divider />
+                  {authState.user.role == 'admin' && (
+                    <List>
+                      <DrawerItem
+                        title="Domenii"
+                        icon={<CategoryIcon />}
+                        to="/domains"
+                      />
+                    </List>
+                  )}
                 </Drawer>
               </Box>
-              <Box
-                component="main"
-                sx={{
-                  flexGrow: 1,
-                  p: 2,
-                  position: 'relative',
-                  overflow: 'auto',
-                }}
-              >
-                <Routes>
-                  {routes.map((props) => (
-                    <Route key={props.path} {...props} />
-                  ))}
-                </Routes>
-              </Box>
+            )}
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: 2,
+                position: 'relative',
+                overflow: 'auto',
+              }}
+            >
+              <Routes>
+                {routes.map((props) => (
+                  <Route key={props.path} {...props} />
+                ))}
+              </Routes>
             </Box>
           </Box>
-        </ThemeProvider>
-      </AuthProvider>
+        </Box>
+      </ThemeProvider>
     </SnackbarProvider>
   );
 }

@@ -41,7 +41,7 @@ export default function AuthSnippet() {
     <>
       <Button color="inherit" onClick={(e) => setUserMenuAnchorEl(e.currentTarget)}>
         <AccountCircle />
-        <Typography variant="body1" sx={{ ml: 0.5, textTransform: 'none' }}>
+        <Typography variant="body1" sx={{ ml: 0.5, textTransform: 'none', display: { xs: 'none', sm: 'block' } }} >
           {state.user.firstName} {state.user.lastName}
         </Typography>
       </Button>
