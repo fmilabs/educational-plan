@@ -90,7 +90,7 @@ export class AuthService {
           },
         })
       );
-      return this.usersService.findOneByEmail(data.userPrincipalName);
+      return this.usersService.findOneByEmail(data.mail);
     } catch (error) {
       return null;
     }
