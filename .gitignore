@@ -41,3 +41,5 @@ Thumbs.db
 .env
 
 uploads/
+
+docker-compose.override.yml

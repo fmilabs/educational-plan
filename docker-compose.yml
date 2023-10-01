@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  educational-plan-db:
+    image: mysql
+    restart: unless-stopped
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: educational_plan
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  educational-plan-backend:
+    build:
+      context: ./
+      cache_from:
+        - educational-plan:nx-base
+      dockerfile: ./apps/educational-plan/Dockerfile
+    # image: educational-plan-backend:nx-dev
+    ports:
+      - 3000:3000
+    environment:
+      NODE_ENV: "production"
+      PORT: 3000
+      DATABASE_HOST: educational-plan-db
+      DATABASE_PORT: 3306
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: 12345678
+      DATABASE_NAME: educational_plan
+      JWT_SECRET: secret
+    restart: always
+
+  educational-plan-frontend:
+    build:
+      context: ./
+      cache_from:
+        - nginx:1.19.2
+      dockerfile: ./apps/educational-plan-frontend/Dockerfile
+    # image: educational-plan-frontend:nx-dev
+    ports:
+      - 80:80
+    environment:
+      NODE_ENV: "development"
+      PORT: 80
+    restart: always
+
+volumes:
+  mysql_data:
+
+networks:
+  default:
+    name: educational-plan

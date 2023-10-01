@@ -1,10 +1,11 @@
 import React from "react";
+import { environment } from "../../environments/environment";
 
 export function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = environment.backendUrl;
 
 export async function apiCall<R, D = any>(url: string, method: string, data?: D, fetchOptions?: RequestInit) {
 
