@@ -128,7 +128,13 @@ export default function UsersPage() {
                 rowsPerPage={rowsPerPage}
                 rowsPerPageOptions={rowsPerPageOptions as any}
                 ActionsComponent={TablePaginationActions}
-                onRowsPerPageChange={(e) => setRowsPerPage(e.target.value as any)}
+                onRowsPerPageChange={(e) => {
+                  setRowsPerPage(e.target.value as any);
+                  setPage(0);
+                }}
+                labelRowsPerPage='Rezultate pe pagină:'
+                labelDisplayedRows={({ from, to, count }) => `${from}-${to} din ${count}`}
+                sx={{ color: 'text.secondary', borderBottom: 'none' }}
               />
             </TableRow>
           </TableFooter>
