@@ -6,6 +6,7 @@ import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { Request } from 'express';
 import { ChangePasswordDto } from './dto/ChangePasswordDto';
+import { AzureADAuthGuard } from './guards/azure-ad-auth.guard';
 // import { Recaptcha } from '@nestlab/google-recaptcha';
 
 @Controller("auth")
@@ -17,6 +18,14 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Req() req: Request) {
+    // @ts-ignore
+    return this.authService.login(req.user);
+  }
+
+  @Public()
+  @UseGuards(AzureADAuthGuard)
+  @Post('login/azure')
+  async loginAzure(@Req() req: Request) {
     // @ts-ignore
     return this.authService.login(req.user);
   }

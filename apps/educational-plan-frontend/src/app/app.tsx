@@ -29,7 +29,7 @@ import { Route, Routes, Link, useLocation, Navigate } from 'react-router-dom';
 import useIsMobile from './hooks/is-mobile';
 import DomainsPage from './pages/domains-page';
 import AuthSnippet from './components/auth-snippet';
-import { AuthProvider, useAuth } from './contexts/auth.context';
+import { useAuth } from './contexts/auth.context';
 import DomainPage from './pages/domain-page';
 import MyCoursesPage from './pages/my-courses-page';
 import CoursePage from './pages/course-page';
@@ -44,14 +44,6 @@ interface DrawerItemProps {
 }
 
 export function App() {
-  return (
-    <AuthProvider>
-      <AuthApp />
-    </AuthProvider>
-  );
-}
-
-export function AuthApp() {
   const { state: authState } = useAuth();
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = React.useState(!isMobile);

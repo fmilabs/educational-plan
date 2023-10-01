@@ -11,9 +11,12 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../configuration';
+import { AzureStrategy } from './strategies/azure.stategy';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({
@@ -29,6 +32,7 @@ import configuration from '../configuration';
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    AzureStrategy,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard }
   ],

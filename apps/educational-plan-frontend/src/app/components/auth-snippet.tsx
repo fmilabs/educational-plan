@@ -12,22 +12,62 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useAuth } from '../contexts/auth.context';
-import { apiCall } from '../lib/utils';
+import { BrowserAuthError } from '@azure/msal-browser';
+import { useMsal } from "@azure/msal-react";
+import { apiCall, getApiError } from '../lib/utils';
 import { AuthResponse } from '@educational-plan/types';
+import { loginRequest } from '../../config/azure-config';
+import { useSnackbar } from 'notistack';
+import LoadingShade from './loading-shade';
 
 export default function AuthSnippet() {
-  const { state, signOut } = useAuth();
+  const { state, signIn, signOut } = useAuth();
+  const { instance } = useMsal();
+  const { enqueueSnackbar } = useSnackbar();
 
+  const [loadingOauth, setLoadingOauth] = React.useState(false);
   const [signInDialogOpen, setSignInDialogOpen] = React.useState(false);
   const [userMenuAnchorEl, setUserMenuAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const msalLogin = async () => {
+    try {
+      setLoadingOauth(true);
+      const msalResponse = await instance.loginPopup(loginRequest);
+      const response = await apiCall<AuthResponse>("auth/login/azure", "POST", undefined, {
+        headers: {
+          Authorization: `Bearer ${msalResponse.accessToken}`
+        }
+      });
+      signIn(response);
+      enqueueSnackbar("V-ați autentificat cu succes.");
+    } catch (error) {
+      if(error instanceof BrowserAuthError) {
+        if(error.errorCode === "user_cancelled") {
+          return;
+        }
+        enqueueSnackbar("A apărut o eroare. Reîncercați.");
+        return;
+      }
+      if(getApiError(error) === "Unauthorized") {
+        enqueueSnackbar("Nu sunteți înregistrat în aplicație. Dacă credeți că este o eroare, contactați administratorul.", {
+          autoHideDuration: 10000,
+        });
+        return;
+      }
+      enqueueSnackbar(getApiError(error));
+    } finally {
+      setLoadingOauth(false);
+    }
+  }
 
   if (!state.user) {
     return (
       <>
-        <Button color="inherit" onClick={() => setSignInDialogOpen(true)}>
+        <Button color="inherit" onClick={msalLogin}>
           Autentificare
         </Button>
         <SignInDialog open={signInDialogOpen} setOpen={setSignInDialogOpen} />
+        {loadingOauth && <LoadingShade position='fixed' title='Autentificare în progres...' /> }
       </>
     );
   }

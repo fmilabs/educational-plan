@@ -7,10 +7,17 @@ import { JwtPayloadDto } from './dto/JwtPayloadDto';
 import { User } from '../users/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { AuthResponse } from '@educational-plan/types';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService, private jwtService: JwtService, private dataSource: DataSource) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+    private dataSource: DataSource,
+    private httpService: HttpService,
+  ) {}
 
   // public async changePassword({ token, password }: ChangePasswordDto) {
   //   if(password.length < 8) {
@@ -69,5 +76,23 @@ export class AuthService {
       return user;
     }
     return null;
+  }
+
+  async validateUserByAzureBearer(token: string) {
+    if(!token) {
+      return null;
+    }
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService.get('https://graph.microsoft.com/v1.0/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      );
+      return this.usersService.findOneByEmail(data.userPrincipalName);
+    } catch (error) {
+      return null;
+    }
   }
 }
