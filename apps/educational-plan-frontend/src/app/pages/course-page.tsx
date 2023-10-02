@@ -62,6 +62,8 @@ export default function CoursePage() {
     return <LoadingShade />;
   }
 
+  const canEdit = user?.id === course.user.id || user?.role == 'admin';
+
   const UploadCurriculumButton = ({ reupload }: { reupload?: boolean }) => {
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +113,7 @@ export default function CoursePage() {
         <PopupState variant='popover'>
           {(popupState) => (
             <>
-              {user?.id === course.user.id && (
+              {canEdit && (
                 <IconButton {...bindTrigger(popupState)}>
                   <MoreIcon />
                 </IconButton>
@@ -189,16 +191,17 @@ export default function CoursePage() {
                 Vizualizați
               </Typography>
             </Button>
-            {user && user.id == course.user.id && <UploadCurriculumButton reupload />}
+            {canEdit && <UploadCurriculumButton reupload />}
           </>
         ) : (
-          (!user || user.id != course.user.id) ? (
-            <Alert severity="warning">
-              Profesorul nu a încărcat fișa cursului.
-            </Alert>
-          ) : (
-            <UploadCurriculumButton />
-          )
+          <>
+            { (!user || user.id != course.user.id) && (
+              <Alert severity="warning" sx={{ mb: 2 }}>
+                Profesorul nu a încărcat fișa cursului.
+              </Alert>
+            )}
+            {canEdit && <UploadCurriculumButton />}
+          </>
         )}
       </Box>
       <CourseDialog {...courseDialogProps} />
