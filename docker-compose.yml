@@ -20,7 +20,7 @@ services:
       dockerfile: ./apps/educational-plan/Dockerfile
     # image: educational-plan-backend:nx-dev
     volumes:
-      - app_storage:/app/dist/educational-plan/uploads
+      - app_storage:/app/dist/apps/educational-plan/uploads
     expose:
       - 3000
     environment:
