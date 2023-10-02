@@ -19,9 +19,21 @@ export default function AllCoursesPage() {
       return a.type.localeCompare(b.type);
     }
   )), [domains]);
+
+  const specializations = React.useMemo(() => (
+    sortedDomains.flatMap((domain) => domain.specializations || [])
+  ), [sortedDomains]);
+
   const selectedSpecialization = React.useMemo(() => (
-    sortedDomains.flatMap((domain) => domain.specializations || []).find((specialization) => specialization.id === specializationId)
-  ), [sortedDomains, specializationId]);
+    specializations.find((specialization) => specialization.id === specializationId)
+  ), [specializations, specializationId]);
+
+  const specializationLabels = React.useMemo(() => (
+    specializations.reduce((acc, specialization) => ({
+      ...acc,
+      [specialization.id]: `${specialization.name} – ${DOMAIN_TYPES[specialization.domain.type]}, ${specialization.domain.studyForm}`,
+    }), {} as Record<string, string>)
+  ), [specializations]);
 
   function setSearchParam<K extends SearchParamKey>(key: K, value: string) {
     searchParams.set(key, value);
@@ -44,6 +56,10 @@ export default function AllCoursesPage() {
           setSearchParams(searchParams);
           return;
         }
+      } else {
+        searchParams.delete('semester');
+        setSearchParams(searchParams);
+        return;
       }
       if(semester) {
         const semesterNumber = parseInt(semester);
@@ -52,17 +68,16 @@ export default function AllCoursesPage() {
           setSearchParams(searchParams);
         }
       }
+    } else {
+      if(year || semester) {
+        searchParams.delete('year');
+        searchParams.delete('semester');
+        setSearchParams(searchParams);
+      }
     }
   }, [domains, specializationId, year, semester]);
 
-  const [courses, error, loading] = useApiResult(() => {
-    if(!specializationId || !year || !semester) return Promise.resolve(null);
-    return apiCall<ICourse[]>(`courses?specializationId=${specializationId}&year=${year}&semester=${semester}`, 'GET');
-  }, [specializationId, year, semester]);
-
-  const groupedCourses = React.useMemo(() => (
-    groupBy(courses || [], (course) => !course.optional ? 'mandatory' : 'optional')
-  ), [courses]);
+  const [courses, error, loading] = useApiResult(() => apiCall<ICourse[]>(`courses`, 'GET'), []);
 
   if(loadingDomains) {
     return <LoadingShade />;
@@ -113,7 +128,7 @@ export default function AllCoursesPage() {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth disabled={!selectedSpecialization}>
+            <FormControl fullWidth disabled={!selectedSpecialization || !year}>
               <InputLabel id="semester">Semestru</InputLabel>
               <Select
                 labelId="semester"
@@ -138,14 +153,46 @@ export default function AllCoursesPage() {
           A apărut o eroare.
         </Alert>
       ) : courses?.length === 0 ? (
-        <Alert severity="info">
-          Nu există cursuri.
-        </Alert>
+        <NoCoursesAlert />
       ) : (
-        <>
-          <CourseList courses={groupedCourses.mandatory || []} title="Cursuri obligatorii" />
-          <CourseList courses={groupedCourses.optional || []} title="Cursuri opționale" />
-        </>
+        courses && (
+          <Groupable
+            courses={courses}
+            keyExtractor={course => course.specialization.id}
+            getLabelFromKey={(specializationId) => specializationLabels[specializationId]}
+            titleVariant="h4"
+            onlyShow={specializationId}
+          >
+            {(courses) => (
+              <Groupable
+                courses={courses}
+                keyExtractor={course => course.year.toString()}
+                getLabelFromKey={key => `Anul ${key}`}
+                titleVariant="h4"
+                onlyShow={year}
+              >
+                {(courses) => (
+                  <Groupable
+                    courses={courses}
+                    keyExtractor={course => course.semester.toString()}
+                    getLabelFromKey={key => `Semestrul ${romanize(+key)}`}
+                    titleVariant="h5"
+                    onlyShow={semester}
+                  >
+                    {(courses) => (
+                      <Groupable
+                        courses={courses}
+                        keyExtractor={course => course.optional.toString()}
+                        getLabelFromKey={key => key === 'false' ? 'Cursuri obligatorii' : 'Cursuri opționale'}
+                        titleVariant="h6"
+                      />
+                    )}
+                  </Groupable>
+                )}
+              </Groupable>
+            )}
+          </Groupable>
+        )
       )}
     </Box>
   )
@@ -171,11 +218,66 @@ function CourseCard({ course }: { course: ICourse }) {
   )
 }
 
-function CourseList({ courses, title }: { courses: ICourse[]; title: string }) {
+function Groupable({ courses, keyExtractor, getLabelFromKey, titleVariant, onlyShow, children }: {
+  courses: ICourse[];
+  keyExtractor: (course: ICourse) => string | number;
+  getLabelFromKey: (key: string) => string;
+  titleVariant: React.ComponentProps<typeof Typography>['variant'];
+  onlyShow?: string;
+  children?: (courses: ICourse[]) => React.ReactNode;
+}) {
+  const groupedCourses = React.useMemo(() => (
+    groupBy(courses, keyExtractor)
+  ), [courses, keyExtractor]);
+
+  const groupLabels = React.useMemo(() => (
+    Object.keys(groupedCourses).reduce((acc, key) => ({ ...acc, [key]: getLabelFromKey(key) }), {} as Record<string, string>)
+  ), [groupedCourses, getLabelFromKey]);
+
+  if(children) {
+    if(onlyShow) {
+      return groupedCourses[onlyShow] === undefined
+        ? <NoCoursesAlert />
+        : children(groupedCourses[onlyShow]);
+    }
+    return (
+      <>
+        {Object.entries(groupedCourses).map(([groupKey, courses], index) => (
+          <Box key={index}>
+            <Typography variant={titleVariant} sx={{ mb: 1 }}>
+              {groupLabels[groupKey]}
+            </Typography>
+            {children(courses)}
+          </Box>
+        ))}
+      </>
+    )
+  }
+
+  return (
+    <>
+      {Object.entries(groupedCourses).map(([groupKey, courses], index) => (
+        <CourseList key={index} courses={courses} title={groupLabels[groupKey]} titleVariant={titleVariant} />
+      ))}
+    </>
+  );
+}
+
+function NoCoursesAlert() {
+  return (
+    <Alert severity="info">Nu există cursuri.</Alert>
+  );
+}
+
+function CourseList({ courses, title, titleVariant = 'h6' }: {
+  courses: ICourse[];
+  title: string;
+  titleVariant?: React.ComponentProps<typeof Typography>['variant'];
+}) {
   if(courses.length === 0) return null;
   return (
     <Box sx={{ mb: 3 }}>
-      <Typography variant="h6" component="h2" sx={{ mb: 1, }}>
+      <Typography variant={titleVariant} sx={{ mb: 1, }}>
         {title}
       </Typography>
       {courses.map((course) => (
