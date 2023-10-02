@@ -131,7 +131,7 @@ export function App() {
                 component="div"
                 sx={{ flexGrow: 1 }}
               >
-                Plan de învățământ
+                Planuri de învățământ
               </Typography>
               <IconButton onClick={() => {
                 localStorage.setItem('darkMode', (!darkMode).toString());
