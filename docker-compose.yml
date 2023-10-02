@@ -19,8 +19,10 @@ services:
         - educational-plan:nx-base
       dockerfile: ./apps/educational-plan/Dockerfile
     # image: educational-plan-backend:nx-dev
-    ports:
-      - 3000:3000
+    volumes:
+      - app_storage:/app/dist/educational-plan/uploads
+    expose:
+      - 3000
     environment:
       NODE_ENV: "production"
       PORT: 3000
@@ -39,8 +41,8 @@ services:
         - nginx:1.19.2
       dockerfile: ./apps/educational-plan-frontend/Dockerfile
     # image: educational-plan-frontend:nx-dev
-    ports:
-      - 80:80
+    expose:
+      - 80
     environment:
       NODE_ENV: "development"
       PORT: 80
@@ -48,6 +50,7 @@ services:
 
 volumes:
   mysql_data:
+  app_storage:
 
 networks:
   default:

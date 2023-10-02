@@ -2,7 +2,7 @@
 
 ## Development server
 To start the backend app: `npx nx run educational-plan:serve`.
-To start the frontend app: `npx nx run educational-plan-frontend:serve`.
+To start the frontend app: `npx nx run apps/educational-plan-frontend:serve`.
 
 
 ## Build for production (using Docker)

@@ -2,6 +2,6 @@ export const environment = {
   production: true,
   backendUrl: 'https://cursuri.fmi.unibuc.ro/api',
   websiteURL: 'https://cursuri.fmi.unibuc.ro',
-  azureClientId: '63dabb7a-70ad-4257-bdd3-9436b11bd77c',
-  azureTenantId: 'fc478db8-85fc-4b51-90da-0ec0351f24b1',
+  azureClientId: 'fb619e98-3b7c-43d8-908e-4a7f2f37af62',
+  azureTenantId: '08a1a72f-fecd-4dae-8cec-471a2fb7c2f1',
 };
