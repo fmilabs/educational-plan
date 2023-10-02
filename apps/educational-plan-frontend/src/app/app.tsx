@@ -36,6 +36,7 @@ import CoursePage from './pages/course-page';
 import AllCoursesPage from './pages/all-courses-page';
 import LoadingShade from './components/loading-shade';
 import UsersPage from './pages/users-page';
+import CoursesTablePage from './pages/courses-table-page';
 
 interface DrawerItemProps {
   title: string;
@@ -94,6 +95,7 @@ export function App() {
       routes.push({ path: '/my-courses', element: <MyCoursesPage /> });
     }
     if(authState.user?.role === 'admin') {
+      routes.push({ path: '/courses', element: <CoursesTablePage /> });
       routes.push({ path: '/domains', element: <DomainsPage /> });
       routes.push({ path: '/domains/:id', element: <DomainPage /> });
       routes.push({ path: '/users', element: <UsersPage /> })
@@ -200,6 +202,11 @@ export function App() {
                         title="Utilizatori"
                         icon={<PeopleIcon />}
                         to="/users"
+                      />
+                      <DrawerItem
+                        title="Cursuri (listă)"
+                        icon={<SchoolIcon />}
+                        to="/courses"
                       />
                     </List>
                   )}
