@@ -123,7 +123,7 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
                   </ListSubheader>
                 ),
                 ...(domain.specializations || []).map((specialization) => (
-                  <MenuItem key={specialization.id} value={specialization.id}>
+                  <MenuItem key={specialization.id} value={specialization.id} sx={{ pl: 4 }}>
                     {specialization.name}
                   </MenuItem>
                 ))
