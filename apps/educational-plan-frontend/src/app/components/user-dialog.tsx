@@ -81,7 +81,6 @@ export default function UserDialog({ open, onClose, user }: UserDialogProps) {
             onChange={(e) => setUserFormField('firstName', e.target.value)}
           />
           <TextField
-            autoFocus
             name='userLastName'
             margin="dense"
             label="Nume"
@@ -93,7 +92,6 @@ export default function UserDialog({ open, onClose, user }: UserDialogProps) {
           />
           <TextField
             disabled={!!user}
-            autoFocus
             name='userEmail'
             margin="dense"
             label="E-mail"

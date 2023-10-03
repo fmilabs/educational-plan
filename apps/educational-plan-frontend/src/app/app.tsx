@@ -61,9 +61,15 @@ export function App() {
     const route = useLocation();
     const isCurrent = route.pathname === to;
 
+    const handleClick = () => {
+      if(isMobile) {
+        setDrawerOpen(false);
+      }
+    }
+
     return (
       <ListItem key={title} disablePadding>
-        <ListItemButton selected={isCurrent} component={Link} to={to}>
+        <ListItemButton selected={isCurrent} component={Link} to={to} onClick={handleClick}>
           <ListItemIcon>{icon}</ListItemIcon>
           <ListItemText primary={title} />
         </ListItemButton>

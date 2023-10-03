@@ -78,7 +78,6 @@ export default function SpecializationDialog({ open, onClose, specialization }: 
             onChange={(e) => setSpecializationFormField('name', e.target.value)}
           />
           <TextField
-            autoFocus
             name='specializationYears'
             margin="dense"
             label="Ani de studiu"
