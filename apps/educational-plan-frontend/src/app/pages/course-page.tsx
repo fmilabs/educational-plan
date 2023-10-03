@@ -30,7 +30,7 @@ export default function CoursePage() {
   const { enqueueSnackbar } = useSnackbar();
   const { state: { user }} = useAuth();
   const { id } = useParams<{ id: string }>();
-  const [course, error, loading, refresh] = useApiResult(() => apiCall<ICourse>(`courses/${id}`, 'GET'), [id]);
+  const [course, error, loading, refresh] = useApiResult<ICourse>(`courses/${id}`, 'GET');
   const [courseDialogProps, setCourseDialogProps] = React.useState<CourseDialogProps>({
     open: false,
     onClose: (result) => {

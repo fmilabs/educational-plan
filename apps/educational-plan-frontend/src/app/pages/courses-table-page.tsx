@@ -30,10 +30,7 @@ import { Link } from 'react-router-dom';
 
 export default function CoursesTablePage() {
 
-  const [courses, error, loading, refresh] = useApiResult(
-    () => apiCall<ICourse[]>(`courses`, 'GET'),
-    []
-  );
+  const [courses, error, loading, refresh] = useApiResult<ICourse[]>('courses', 'GET');
 
   const sortedCourses = React.useMemo(() => {
     if(!courses) return [];

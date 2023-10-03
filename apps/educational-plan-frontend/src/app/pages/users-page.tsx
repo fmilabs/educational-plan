@@ -34,9 +34,9 @@ export default function UsersPage() {
   const [rowsPerPage, setRowsPerPage] = React.useState<typeof rowsPerPageOptions[number]>(10);
   const [page, setPage] = React.useState(0);
 
-  const [users, error, loading, refresh] = useApiResult(
-    () => apiCall<Paginated<IUser>>(`users?limit=${rowsPerPage}&offset=${page * rowsPerPage}`, 'GET'),
-    [rowsPerPage, page]
+  const [users, error, loading, refresh] = useApiResult<Paginated<IUser>>(
+    `users?limit=${rowsPerPage}&offset=${page * rowsPerPage}`,
+    'GET'
   );
   const [userDialogProps, setUserDialogProps] = React.useState<UserDialogProps>({
     open: false,

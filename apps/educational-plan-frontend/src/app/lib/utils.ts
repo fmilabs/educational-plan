@@ -37,30 +37,40 @@ export async function apiCall<R, D = any>(url: string, method: string, data?: D,
         }
       })
       .catch((e) => {
-        console.log(e);
-        reject({ message: "Something went wrong", code: "Unknown" })
+        if(e.name === "AbortError") {
+          reject(e);
+        }
+        reject(getApiError(e));
       });
   });
 }
 
-export function useApiResult<R>(callFactory: () => Promise<R>, deps: any[] = []) {
+export function useApiResult<R>(...params: Parameters<typeof apiCall>) {
   const [result, setResult] = React.useState<R | null>(null);
-  const [error, setError] = React.useState<any>(null);
+  const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [refresh, setRefresh] = React.useState(0);
   const requestRefresh = () => setRefresh((refresh) => refresh + 1);
 
   function refreshData() {
-    setError(null);
+    const controller = new AbortController();
+    params[3] = { ...params[3], signal: controller.signal };
     setLoading(true);
-    const apiCall = callFactory();
-    apiCall
-      .then((result) => setResult(result))
-      .catch((error) => setError(error))
+    apiCall<R>(...params)
+      .then((result) => {
+        setResult(result);
+        setError(null);
+      })
+      .catch((error) => {
+        if(error.name === "AbortError") return;
+        setError(error);
+        setResult(null);
+      })
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }
 
-  React.useEffect(refreshData, deps.concat([refresh]));
+  React.useEffect(refreshData, params.concat([refresh]));
   return [result, error, loading, requestRefresh] as const;
 }
 

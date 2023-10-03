@@ -17,10 +17,7 @@ import CourseDialog, { CourseDialogProps } from '../components/course-dialog';
 
 export default function MyCoursesPage() {
   const navigate = useNavigate();
-  const [courses, error, loading] = useApiResult(
-    () => apiCall<ICourse[]>('courses/my', 'GET'),
-    []
-  );
+  const [courses, error, loading] = useApiResult<ICourse[]>('courses/my', 'GET');
 
   const [courseDialogProps, setCourseDialogProps] = React.useState<CourseDialogProps>({
     open: false,

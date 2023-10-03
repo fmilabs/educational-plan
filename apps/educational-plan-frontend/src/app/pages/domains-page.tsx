@@ -17,10 +17,7 @@ import LoadingShade from '../components/loading-shade';
 
 export default function DomainsPage() {
   const navigate = useNavigate();
-  const [domains, error, loading] = useApiResult(
-    () => apiCall<IDomain[]>('domains', 'GET'),
-    []
-  );
+  const [domains, error, loading] = useApiResult<IDomain[]>('domains', 'GET');
 
   const [domainDialogProps, setDomainDialogProps] = React.useState<DomainDialogProps>({
     open: false,

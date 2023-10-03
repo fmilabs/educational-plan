@@ -12,7 +12,7 @@ export default function AllCoursesPage() {
   const specializationId = searchParams.get("specializationId") || '';
   const year = searchParams.get("year") || '';
   const semester = searchParams.get("semester") || '';
-  const [domains, domainsError, loadingDomains] = useApiResult(() => apiCall<IDomain[]>("domains", "GET"), []);
+  const [domains, domainsError, loadingDomains] = useApiResult<IDomain[]>("domains", "GET");
   const sortedDomains = React.useMemo(() => (
     [...domains || []].sort((a, b) => {
       if(a.type === b.type) return a.name.localeCompare(b.name);
@@ -77,7 +77,7 @@ export default function AllCoursesPage() {
     }
   }, [domains, specializationId, year, semester]);
 
-  const [courses, error, loading] = useApiResult(() => apiCall<ICourse[]>(`courses`, 'GET'), []);
+  const [courses, error, loading] = useApiResult<ICourse[]>('courses', 'GET');
 
   if(loadingDomains) {
     return <LoadingShade />;

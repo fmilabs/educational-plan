@@ -39,7 +39,7 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
   const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = React.useState(false);
   const [courseForm, setCourseForm] = React.useState<CourseForm>(getInitialValues(course));
-  const [domains] = useApiResult(() => apiCall<IDomain[]>('domains', 'GET'), []);
+  const [domains] = useApiResult<IDomain[]>('domains', 'GET');
   const sortedDomains = React.useMemo(() => (
     [...domains || []].sort((a, b) => {
       if(a.type === b.type) return a.name.localeCompare(b.name);

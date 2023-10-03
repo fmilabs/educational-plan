@@ -27,7 +27,7 @@ import { Alert } from '@mui/material';
 export default function DomainPage() {
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams<{ id: string }>();
-  const [domain, error, loading, refresh] = useApiResult(() => apiCall<IDomain>(`domains/${id}`, 'GET'), [id]);
+  const [domain, error, loading, refresh] = useApiResult<IDomain>(`domains/${id}`, 'GET');
   const [specializationMenu, setSpecializationMenu] = React.useState<{ specialization: ISpecialization; anchor: HTMLElement } | null>(null);
   const [domainDialogProps, setDomainDialogProps] = React.useState<DomainDialogProps>({
     open: false,
