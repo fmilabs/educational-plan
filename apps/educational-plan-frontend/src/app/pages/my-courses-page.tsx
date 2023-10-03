@@ -30,7 +30,7 @@ export default function MyCoursesPage() {
   });
 
   return (
-    <>
+    <Box>
       <Box sx={{ display: 'flex', mb: 2 }}>
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Cursurile dvs.
@@ -75,6 +75,6 @@ export default function MyCoursesPage() {
         </Alert>
       )}
       <CourseDialog {...courseDialogProps} />
-    </>
+    </Box>
   );
 }

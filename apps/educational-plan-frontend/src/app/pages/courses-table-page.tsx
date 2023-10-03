@@ -45,7 +45,7 @@ export default function CoursesTablePage() {
   }, [courses]);
 
   return (
-    <>
+    <Box>
       <Box sx={{ display: 'flex', mb: 2 }}>
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Cursuri
@@ -134,7 +134,7 @@ export default function CoursesTablePage() {
           </TableFooter> */}
         </Table>
       </TableContainer>
-    </>
+    </Box>
   );
 }
 

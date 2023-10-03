@@ -37,6 +37,7 @@ import AllCoursesPage from './pages/all-courses-page';
 import LoadingShade from './components/loading-shade';
 import UsersPage from './pages/users-page';
 import CoursesTablePage from './pages/courses-table-page';
+import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 interface DrawerItemProps {
   title: string;
@@ -49,6 +50,8 @@ export function App() {
   const isMobile = useIsMobile();
   const [drawerOpen, setDrawerOpen] = React.useState(!isMobile);
   const drawerWidth = drawerOpen || isMobile ? 240 : 0;
+  const location = useLocation();
+  const mainRef = React.useRef<HTMLDivElement>(null);
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -103,6 +106,14 @@ export function App() {
     routes.push({ path: '*', element: <Navigate to="/" /> });
     return routes;
   }, [authState]);
+
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if(!mainRef.current) return;
+      mainRef.current.scrollTop = 0;
+    }, 200);
+    return () => clearTimeout(timeoutId);
+  }, [location]);
 
   return (
     <SnackbarProvider anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }} maxSnack={1}>
@@ -221,12 +232,22 @@ export function App() {
                 position: 'relative',
                 overflow: 'auto',
               }}
+              ref={mainRef}
             >
-              <Routes>
-                {routes.map((props) => (
-                  <Route key={props.path} {...props} />
-                ))}
-              </Routes>
+              <TransitionGroup>
+                <CSSTransition
+                  key={location.pathname}
+                  classNames="fade"
+                  timeout={500}
+                  unmountOnExit
+                >
+                  <Routes location={location}>
+                    {routes.map((props) => (
+                      <Route key={props.path} {...props} />
+                    ))}
+                  </Routes>
+                </CSSTransition>
+              </TransitionGroup>
             </Box>
           </Box>
         </Box>

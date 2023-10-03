@@ -85,111 +85,112 @@ export default function DomainPage() {
     window.history.back();
   }, [error]);
 
-  if(!domain) {
-    return null;
-  }
-
   return (
-    <>
-      <Box sx={{ display: 'flex', mb: 2 }}>
-        <IconButton onClick={() => window.history.back()} sx={{ mr: 1 }}>
-          <BackIcon />
-        </IconButton>
-        <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
-          {domain.name}
-        </Typography>
-        <PopupState variant='popover'>
-          {(popupState) => (
-            <>
-              <IconButton {...bindTrigger(popupState)}>
-                <MoreIcon />
+    <Box>
+      {(!domain || loading) ? (
+        <LoadingShade />
+        ) : (
+          <>
+            <Box sx={{ display: 'flex', mb: 2 }}>
+              <IconButton onClick={() => window.history.back()} sx={{ mr: 1 }}>
+                <BackIcon />
               </IconButton>
-              <Menu {...bindMenu(popupState)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-                <MenuItem
-                  onClick={() => {
-                    popupState.close();
-                    setDomainDialogProps((props) => ({ ...props, open: true, domain }));
-                  }}
-                >
-                  <ListItemIcon>
-                    <EditIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Editați</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    popupState.close();
-                    deleteDomain(domain);
-                  }}
-                >
-                  <ListItemIcon>
-                    <DeleteIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Ștergeți</ListItemText>
-                </MenuItem>
-              </Menu>
-            </>
-          )}
-        </PopupState>
-
-      </Box>
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
-        <ListItem disableGutters>
-          <ListItemText primary="Nume" secondary={domain.name} />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText primary="Tip" secondary={DOMAIN_TYPES[domain.type]} />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText primary="Formă de învățământ" secondary={STUDY_FORMS[domain.studyForm]} />
-        </ListItem>
-      </List>
-      <Box sx={{ display: 'flex', mt: 2, alignItems: 'flex-end' }}>
-        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
-          Programe de studii
-        </Typography>
-        <Button variant="outlined" onClick={() => setSpecializationDialogProps((props) => ({ ...props, open: true }))}>
-          Adăugați
-        </Button>
-      </Box>
-      {domain.specializations?.length == 0 && (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          Nu există programe de studii.
-        </Alert>
-      )}
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
-        {domain.specializations?.map((specialization) => (
-          <ListItem disableGutters key={specialization.id}>
-            <ListItemText primary={specialization.name} secondary={`${specialization.studyYears} ani de studiu`} />
-            <IconButton onClick={(e) => setSpecializationMenu({ specialization, anchor: e.currentTarget })}>
-              <MoreIcon />
-            </IconButton>
-          </ListItem>
-        ))}
-      </List>
-      <Menu
-        anchorEl={specializationMenu?.anchor}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        keepMounted
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        open={!!specializationMenu}
-        onClose={() => closeSpecializationMenu()}
-      >
-        <MenuItem onClick={() => closeSpecializationMenu(() => editSpecialization(specializationMenu!.specialization))}>
-          Editați
-        </MenuItem>
-        <MenuItem onClick={() => closeSpecializationMenu(() => deleteSpecialization(specializationMenu!.specialization))}>
-          Ștergeți
-        </MenuItem>
-      </Menu>
-      <SpecializationDialog {...specializationDialogProps} />
-      <DomainDialog {...domainDialogProps} />
-    </>
+              <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
+                {domain.name}
+              </Typography>
+              <PopupState variant='popover'>
+                {(popupState) => (
+                  <>
+                    <IconButton {...bindTrigger(popupState)}>
+                      <MoreIcon />
+                    </IconButton>
+                    <Menu {...bindMenu(popupState)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+                      <MenuItem
+                        onClick={() => {
+                          popupState.close();
+                          setDomainDialogProps((props) => ({ ...props, open: true, domain }));
+                        }}
+                      >
+                        <ListItemIcon>
+                          <EditIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Editați</ListItemText>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          popupState.close();
+                          deleteDomain(domain);
+                        }}
+                      >
+                        <ListItemIcon>
+                          <DeleteIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Ștergeți</ListItemText>
+                      </MenuItem>
+                    </Menu>
+                  </>
+                )}
+              </PopupState>
+            </Box>
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
+              <ListItem disableGutters>
+                <ListItemText primary="Nume" secondary={domain.name} />
+              </ListItem>
+              <ListItem disableGutters>
+                <ListItemText primary="Tip" secondary={DOMAIN_TYPES[domain.type]} />
+              </ListItem>
+              <ListItem disableGutters>
+                <ListItemText primary="Formă de învățământ" secondary={STUDY_FORMS[domain.studyForm]} />
+              </ListItem>
+            </List>
+            <Box sx={{ display: 'flex', mt: 2, alignItems: 'flex-end' }}>
+              <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
+                Programe de studii
+              </Typography>
+              <Button variant="outlined" onClick={() => setSpecializationDialogProps((props) => ({ ...props, open: true }))}>
+                Adăugați
+              </Button>
+            </Box>
+            {domain.specializations?.length == 0 && (
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Nu există programe de studii.
+              </Alert>
+            )}
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
+              {domain.specializations?.map((specialization) => (
+                <ListItem disableGutters key={specialization.id}>
+                  <ListItemText primary={specialization.name} secondary={`${specialization.studyYears} ani de studiu`} />
+                  <IconButton onClick={(e) => setSpecializationMenu({ specialization, anchor: e.currentTarget })}>
+                    <MoreIcon />
+                  </IconButton>
+                </ListItem>
+              ))}
+            </List>
+            <Menu
+              anchorEl={specializationMenu?.anchor}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={!!specializationMenu}
+              onClose={() => closeSpecializationMenu()}
+            >
+              <MenuItem onClick={() => closeSpecializationMenu(() => editSpecialization(specializationMenu!.specialization))}>
+                Editați
+              </MenuItem>
+              <MenuItem onClick={() => closeSpecializationMenu(() => deleteSpecialization(specializationMenu!.specialization))}>
+                Ștergeți
+              </MenuItem>
+            </Menu>
+            <SpecializationDialog {...specializationDialogProps} />
+            <DomainDialog {...domainDialogProps} />
+          </>
+        )}
+    </Box>
   );
 }

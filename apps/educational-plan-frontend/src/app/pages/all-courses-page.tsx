@@ -2,7 +2,7 @@ import * as React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiCall, groupBy, romanize, useApiResult } from "../lib/utils";
 import { DOMAIN_TYPES, ICourse, IDomain } from "@educational-plan/types";
-import { Alert, Box, Card, CardContent, CircularProgress, FormControl, Grid, InputLabel, ListSubheader, MenuItem, Paper, Select, Typography } from "@mui/material";
+import { Alert, Box, Card, CardContent, CircularProgress, FormControl, Grid, InputLabel, ListSubheader, MenuItem, Paper, Select, Skeleton, Typography } from "@mui/material";
 import LoadingShade from "../components/loading-shade";
 
 type SearchParamKey = "specializationId" | "year" | "semester";
@@ -84,116 +84,118 @@ export default function AllCoursesPage() {
   }
 
   return (
-    <Box sx={{ maxWidth: 600, margin: '0 auto' }}>
-      <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
-        <Grid container spacing={2} sx={{ mb: 2 }}>
-          <Grid item xs={12}>
-            <FormControl fullWidth required>
-              <InputLabel htmlFor="specializationId">Program de studiu</InputLabel>
-              <Select
-                id="specializationId"
-                value={specializationId}
-                label="Program de studiu"
-                required
-                onChange={(e) => setSearchParam('specializationId', e.target.value!)}
-              >
-                {sortedDomains?.map((domain) => ([
-                  domain.specializations!.length > 0 && (
-                    <ListSubheader key={domain.id}>
-                      <em>{domain.name} {domain.studyForm} – {DOMAIN_TYPES[domain.type]}</em>
-                    </ListSubheader>
-                  ),
-                  ...(domain.specializations || []).map((specialization) => (
-                    <MenuItem key={specialization.id} value={specialization.id} sx={{ pl: 4 }}>
-                      {specialization.name}
-                    </MenuItem>
-                  ))
-                ]))}
-              </Select>
-            </FormControl>
+    <Box>
+      <Box sx={{ maxWidth: 600, margin: '0 auto' }}>
+        <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel htmlFor="specializationId">Program de studiu</InputLabel>
+                <Select
+                  id="specializationId"
+                  value={specializationId}
+                  label="Program de studiu"
+                  required
+                  onChange={(e) => setSearchParam('specializationId', e.target.value!)}
+                >
+                  {sortedDomains?.map((domain) => ([
+                    domain.specializations!.length > 0 && (
+                      <ListSubheader key={domain.id}>
+                        <em>{domain.name} {domain.studyForm} – {DOMAIN_TYPES[domain.type]}</em>
+                      </ListSubheader>
+                    ),
+                    ...(domain.specializations || []).map((specialization) => (
+                      <MenuItem key={specialization.id} value={specialization.id} sx={{ pl: 4 }}>
+                        {specialization.name}
+                      </MenuItem>
+                    ))
+                  ]))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth disabled={!selectedSpecialization}>
+                <InputLabel id="year">An</InputLabel>
+                <Select
+                  labelId="year"
+                  value={year}
+                  label="An"
+                  onChange={(e) => setSearchParam('year', e.target.value)}
+                >
+                  {Array.from({ length: selectedSpecialization?.studyYears || 0 }).map((_, i) => (
+                    <MenuItem key={i} value={i + 1}>Anul {i + 1}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth disabled={!selectedSpecialization || !year}>
+                <InputLabel id="semester">Semestru</InputLabel>
+                <Select
+                  labelId="semester"
+                  value={semester}
+                  label="Semestru"
+                  onChange={(e) => setSearchParam('semester', e.target.value)}
+                >
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <MenuItem key={i} value={i + 1}>Semestrul {romanize(i + 1)}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth disabled={!selectedSpecialization}>
-              <InputLabel id="year">An</InputLabel>
-              <Select
-                labelId="year"
-                value={year}
-                label="An"
-                onChange={(e) => setSearchParam('year', e.target.value)}
-              >
-                {Array.from({ length: selectedSpecialization?.studyYears || 0 }).map((_, i) => (
-                  <MenuItem key={i} value={i + 1}>Anul {i + 1}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth disabled={!selectedSpecialization || !year}>
-              <InputLabel id="semester">Semestru</InputLabel>
-              <Select
-                labelId="semester"
-                value={semester}
-                label="Semestru"
-                onChange={(e) => setSearchParam('semester', e.target.value)}
-              >
-                {Array.from({ length: 2 }).map((_, i) => (
-                  <MenuItem key={i} value={i + 1}>Semestrul {romanize(i + 1)}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-        </Grid>
-      </Paper>
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-          <CircularProgress />
-        </Box>
-      ) : (error || domainsError) ? (
-        <Alert severity="error">
-          A apărut o eroare.
-        </Alert>
-      ) : courses?.length === 0 ? (
-        <NoCoursesAlert />
-      ) : (
-        courses && (
-          <Groupable
-            courses={courses}
-            keyExtractor={course => course.specialization.id}
-            getLabelFromKey={(specializationId) => specializationLabels[specializationId]}
-            titleVariant="h4"
-            onlyShow={specializationId}
-          >
-            {(courses) => (
-              <Groupable
-                courses={courses}
-                keyExtractor={course => course.year.toString()}
-                getLabelFromKey={key => `Anul ${key}`}
-                titleVariant="h4"
-                onlyShow={year}
-              >
-                {(courses) => (
-                  <Groupable
-                    courses={courses}
-                    keyExtractor={course => course.semester.toString()}
-                    getLabelFromKey={key => `Semestrul ${romanize(+key)}`}
-                    titleVariant="h5"
-                    onlyShow={semester}
-                  >
-                    {(courses) => (
-                      <Groupable
-                        courses={courses}
-                        keyExtractor={course => course.optional.toString()}
-                        getLabelFromKey={key => key === 'false' ? 'Cursuri obligatorii' : 'Cursuri opționale'}
-                        titleVariant="h6"
-                      />
-                    )}
-                  </Groupable>
-                )}
-              </Groupable>
-            )}
-          </Groupable>
-        )
-      )}
+        </Paper>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton variant="rounded" animation='wave' height={120} sx={{ mb: 2 }} />
+          ))
+        ) : (error || domainsError) ? (
+          <Alert severity="error">
+            A apărut o eroare.
+          </Alert>
+        ) : courses?.length === 0 ? (
+          <NoCoursesAlert />
+        ) : (
+          courses && (
+            <Groupable
+              courses={courses}
+              keyExtractor={course => course.specialization.id}
+              getLabelFromKey={(specializationId) => specializationLabels[specializationId]}
+              titleVariant="h4"
+              onlyShow={specializationId}
+            >
+              {(courses) => (
+                <Groupable
+                  courses={courses}
+                  keyExtractor={course => course.year.toString()}
+                  getLabelFromKey={key => `Anul ${key}`}
+                  titleVariant="h4"
+                  onlyShow={year}
+                >
+                  {(courses) => (
+                    <Groupable
+                      courses={courses}
+                      keyExtractor={course => course.semester.toString()}
+                      getLabelFromKey={key => `Semestrul ${romanize(+key)}`}
+                      titleVariant="h5"
+                      onlyShow={semester}
+                    >
+                      {(courses) => (
+                        <Groupable
+                          courses={courses}
+                          keyExtractor={course => course.optional.toString()}
+                          getLabelFromKey={key => key === 'false' ? 'Cursuri obligatorii' : 'Cursuri opționale'}
+                          titleVariant="h6"
+                        />
+                      )}
+                    </Groupable>
+                  )}
+                </Groupable>
+              )}
+            </Groupable>
+          )
+        )}
+      </Box>
     </Box>
   )
 }

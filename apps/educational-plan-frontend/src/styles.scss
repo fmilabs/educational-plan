@@ -3,3 +3,33 @@
 html, body, #root {
   height: 100%;
 }
+
+.fade-enter, .fade-exit {
+  position: absolute;
+  width: calc(100% - 32px);
+  top: 16px;
+  left: 16px;
+}
+
+.fade-enter {
+  opacity: 0;
+  transform: scale(0.9);
+  z-index: 1;
+  will-change: opacity, transform;
+
+  &.fade-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 250ms ease-out 200ms, transform 300ms ease 200ms;
+  }
+}
+.fade-exit {
+  opacity: 1;
+  will-change: opacity, transform;
+
+  &.fade-exit.fade-exit-active {
+    opacity: 0;
+    transform: scale(1.05);
+    transition: 200ms ease-out;
+  }
+}

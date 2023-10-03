@@ -60,7 +60,7 @@ export default function UsersPage() {
   }
 
   return (
-    <>
+    <Box>
       <Box sx={{ display: 'flex', mb: 2 }}>
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Utilizatori
@@ -141,7 +141,7 @@ export default function UsersPage() {
         </Table>
       </TableContainer>
       <UserDialog {...userDialogProps} />
-    </>
+    </Box>
   );
 }
 

@@ -30,7 +30,7 @@ export default function DomainsPage() {
   });
 
   return (
-    <>
+    <Box>
       <Box sx={{ display: 'flex', mb: 2 }}>
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Domenii
@@ -72,6 +72,6 @@ export default function DomainsPage() {
         </Alert>
       )}
       <DomainDialog {...domainDialogProps} />
-    </>
+    </Box>
   );
 }

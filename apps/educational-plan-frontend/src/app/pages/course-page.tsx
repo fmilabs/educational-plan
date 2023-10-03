@@ -55,14 +55,10 @@ export default function CoursePage() {
   useEffect(() => {
     if(!error) return;
     enqueueSnackbar('A apărut o eroare.');
-    window.history.back();
+    // window.history.back();
   }, [error]);
 
-  if(!course || loading) {
-    return <LoadingShade />;
-  }
-
-  const canEdit = user?.id === course.user.id || user?.role == 'admin';
+  const canEdit = user?.id === course?.user.id || user?.role == 'admin';
 
   const UploadCurriculumButton = ({ reupload }: { reupload?: boolean }) => {
 
@@ -72,7 +68,7 @@ export default function CoursePage() {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        await apiCall(`courses/${course.id}/curriculum`, 'POST', formData);
+        await apiCall(`courses/${course!.id}/curriculum`, 'POST', formData);
         enqueueSnackbar('Fișa cursului a fost încărcată.');
         refresh();
       } catch (error) {
@@ -102,109 +98,115 @@ export default function CoursePage() {
   }
 
   return (
-    <>
-      <Box sx={{ display: 'flex', mb: 2 }}>
-        <IconButton onClick={() => window.history.back()} sx={{ mr: 1 }}>
-          <BackIcon />
-        </IconButton>
-        <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
-          {course.name}
-        </Typography>
-        <PopupState variant='popover'>
-          {(popupState) => (
-            <>
-              {canEdit && (
-                <IconButton {...bindTrigger(popupState)}>
-                  <MoreIcon />
-                </IconButton>
+    <Box>
+      {(!course || loading) ? (
+        <LoadingShade />
+      ) : (
+        <>
+          <Box sx={{ display: 'flex', mb: 2 }}>
+            <IconButton onClick={() => window.history.back()} sx={{ mr: 1 }}>
+              <BackIcon />
+            </IconButton>
+            <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
+              {course.name}
+            </Typography>
+            <PopupState variant='popover'>
+              {(popupState) => (
+                <>
+                  {canEdit && (
+                    <IconButton {...bindTrigger(popupState)}>
+                      <MoreIcon />
+                    </IconButton>
+                  )}
+                  <Menu {...bindMenu(popupState)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+                    <MenuItem
+                      onClick={() => {
+                        popupState.close();
+                        setCourseDialogProps((props) => ({ ...props, open: true, course }));
+                      }}
+                    >
+                      <ListItemIcon>
+                        <EditIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Editați</ListItemText>
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        popupState.close();
+                        deleteCourse(course);
+                      }}
+                    >
+                      <ListItemIcon>
+                        <DeleteIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText>Ștergeți</ListItemText>
+                    </MenuItem>
+                  </Menu>
+                </>
               )}
-              <Menu {...bindMenu(popupState)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-                <MenuItem
-                  onClick={() => {
-                    popupState.close();
-                    setCourseDialogProps((props) => ({ ...props, open: true, course }));
-                  }}
-                >
-                  <ListItemIcon>
-                    <EditIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Editați</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => {
-                    popupState.close();
-                    deleteCourse(course);
-                  }}
-                >
-                  <ListItemIcon>
-                    <DeleteIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Ștergeți</ListItemText>
-                </MenuItem>
-              </Menu>
-            </>
-          )}
-        </PopupState>
-      </Box>
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
-        <ListItem disableGutters>
-          <ListItemText primary="Nume curs" secondary={course.name} />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText primary="Profesor" secondary={`${course.user.firstName} ${course.user.lastName}`} />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText
-            primary="Program de studiu"
-            secondary={`${course.specialization.name}, ${course.specialization.domain.studyForm} – ${DOMAIN_TYPES[course.specialization.domain.type]}`}
-          />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText primary="An" secondary={course.year} />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText primary="Semestru" secondary={romanize(course.semester)} />
-        </ListItem>
-        <ListItem disableGutters>
-          <ListItemText primary="Credite" secondary={course.credits} />
-        </ListItem>
-        {course.optional && (
-          <ListItem disableGutters>
-            <ListItemText primary="Opțional" secondary="Da" />
-          </ListItem>
-        )}
-        {course.maxStudents !== null && (
-          <ListItem disableGutters>
-            <ListItemText primary="Număr maxim de studenți" secondary={course.maxStudents} />
-          </ListItem>
-        )}
-      </List>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="h5" component="h1" sx={{ mb: 2 }}>
-          Fișa cursului
-        </Typography>
-        {course.curriculumPath ? (
-          <>
-            <Button variant="contained" href={getMediaUrl(course.curriculumPath)} target="_blank" sx={{ mr: 2 }}>
-              <PDFIcon />
-              <Typography sx={{ ml: 1, textTransform: 'capitalize', fontWeight: '500' }}>
-                Vizualizați
-              </Typography>
-            </Button>
-            {canEdit && <UploadCurriculumButton reupload />}
-          </>
-        ) : (
-          <>
-            { (!user || user.id != course.user.id) && (
-              <Alert severity="warning" sx={{ mb: 2 }}>
-                Profesorul nu a încărcat fișa cursului.
-              </Alert>
+            </PopupState>
+          </Box>
+          <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
+            <ListItem disableGutters>
+              <ListItemText primary="Nume curs" secondary={course.name} />
+            </ListItem>
+            <ListItem disableGutters>
+              <ListItemText primary="Profesor" secondary={`${course.user.firstName} ${course.user.lastName}`} />
+            </ListItem>
+            <ListItem disableGutters>
+              <ListItemText
+                primary="Program de studiu"
+                secondary={`${course.specialization.name}, ${course.specialization.domain.studyForm} – ${DOMAIN_TYPES[course.specialization.domain.type]}`}
+              />
+            </ListItem>
+            <ListItem disableGutters>
+              <ListItemText primary="An" secondary={course.year} />
+            </ListItem>
+            <ListItem disableGutters>
+              <ListItemText primary="Semestru" secondary={romanize(course.semester)} />
+            </ListItem>
+            <ListItem disableGutters>
+              <ListItemText primary="Credite" secondary={course.credits} />
+            </ListItem>
+            {course.optional && (
+              <ListItem disableGutters>
+                <ListItemText primary="Opțional" secondary="Da" />
+              </ListItem>
             )}
-            {canEdit && <UploadCurriculumButton />}
-          </>
-        )}
-      </Box>
-      <CourseDialog {...courseDialogProps} />
-    </>
+            {course.maxStudents !== null && (
+              <ListItem disableGutters>
+                <ListItemText primary="Număr maxim de studenți" secondary={course.maxStudents} />
+              </ListItem>
+            )}
+          </List>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="h5" component="h1" sx={{ mb: 2 }}>
+              Fișa cursului
+            </Typography>
+            {course.curriculumPath ? (
+              <>
+                <Button variant="contained" href={getMediaUrl(course.curriculumPath)} target="_blank" sx={{ mr: 2 }}>
+                  <PDFIcon />
+                  <Typography sx={{ ml: 1, textTransform: 'capitalize', fontWeight: '500' }}>
+                    Vizualizați
+                  </Typography>
+                </Button>
+                {canEdit && <UploadCurriculumButton reupload />}
+              </>
+            ) : (
+              <>
+                { (!user || user.id != course.user.id) && (
+                  <Alert severity="warning" sx={{ mb: 2 }}>
+                    Profesorul nu a încărcat fișa cursului.
+                  </Alert>
+                )}
+                {canEdit && <UploadCurriculumButton />}
+              </>
+            )}
+          </Box>
+          <CourseDialog {...courseDialogProps} />
+        </>
+      )}
+    </Box>
   );
 }
