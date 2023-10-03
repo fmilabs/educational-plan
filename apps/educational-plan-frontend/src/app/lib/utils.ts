@@ -51,6 +51,7 @@ export function useApiResult<R>(callFactory: () => Promise<R>, deps: any[] = [])
   const requestRefresh = () => setRefresh((refresh) => refresh + 1);
 
   function refreshData() {
+    setError(null);
     setLoading(true);
     const apiCall = callFactory();
     apiCall
@@ -59,8 +60,7 @@ export function useApiResult<R>(callFactory: () => Promise<R>, deps: any[] = [])
       .finally(() => setLoading(false));
   }
 
-  React.useEffect(refreshData, deps);
-  React.useEffect(refreshData, [refresh]);
+  React.useEffect(refreshData, deps.concat([refresh]));
   return [result, error, loading, requestRefresh] as const;
 }
 

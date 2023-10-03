@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { SpecializationsService } from './specializations.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -10,6 +10,8 @@ import fs from "fs";
 import { safePath } from '../lib/util';
 import { UsersService } from '../users/users.service';
 import { CourseQueryDto } from './dto/course-query.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CoursesService {
@@ -17,6 +19,7 @@ export class CoursesService {
     @InjectRepository(Course) private coursesRepository: Repository<Course>,
     private readonly specializationsService: SpecializationsService,
     private readonly usersService: UsersService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findAll(courseQueryDto?: CourseQueryDto) {
@@ -43,13 +46,17 @@ export class CoursesService {
   async create(courseDto: CreateCourseDto) {
     const specialization = await this.specializationsService.findOne(courseDto.specializationId);
     const user = await this.usersService.findOne(courseDto.userId);
-    return this.coursesRepository.save({ ...courseDto, specialization, user });
+    const result = await this.coursesRepository.save({ ...courseDto, specialization, user });
+    this.cacheManager.reset();
+    return result;
   }
 
   async update(id: string, courseDto: UpdateCourseDto) {
     const course = await this.findOne(id);
     const specialization = await this.specializationsService.findOne(courseDto.specializationId);
-    return this.coursesRepository.save({ ...course, ...courseDto, specialization });
+    const result = await this.coursesRepository.save({ ...course, ...courseDto, specialization });
+    this.cacheManager.reset();
+    return result;
   }
 
   async updateCurriculumFile(id: string, curricullumFile: Buffer) {
@@ -57,12 +64,16 @@ export class CoursesService {
     const fileId = uuid.v4();
     const curriculumPath = safePath(__dirname, 'uploads', `${fileId}.pdf`);
     fs.writeFileSync(curriculumPath, curricullumFile);
-    return this.coursesRepository.save({ ...course, curriculumPath: `/uploads/${fileId}.pdf` });
+    const result = await this.coursesRepository.save({ ...course, curriculumPath: `/uploads/${fileId}.pdf` });
+    this.cacheManager.reset();
+    return result;
   }
 
   async delete(id: string) {
     const course = await this.findOne(id);
-    return this.coursesRepository.remove(course);
+    const result = await this.coursesRepository.remove(course);
+    this.cacheManager.reset();
+    return result;
   }
 
 }

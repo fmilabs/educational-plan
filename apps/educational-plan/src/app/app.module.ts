@@ -8,6 +8,7 @@ import { CoursesModule } from './courses/courses.module';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { UsersModule } from './users/users.module';
       rootPath: join(__dirname, 'uploads'),
       serveRoot: '/uploads',
     }),
+    CacheModule.register({ isGlobal: true }),
     AuthModule,
     UsersModule,
     CoursesModule,

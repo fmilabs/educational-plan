@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UnauthorizedException, UploadedFile, UseInterceptors } from '@nestjs/common';
-
+import { CacheKey, CacheTTL, CacheInterceptor } from '@nestjs/cache-manager';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -34,6 +34,8 @@ export class CoursesController {
 
   @Get()
   @Public()
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(120000)
   async findAll(@Query() courseQueryDto: CourseQueryDto = {}) {
     return this.coursesService.findAll(courseQueryDto);
   }
