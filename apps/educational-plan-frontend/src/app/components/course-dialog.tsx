@@ -15,6 +15,7 @@ import ListSubheader from '@mui/material/ListSubheader';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import { FormControlLabel, Switch } from '@mui/material';
+import { globalStyles } from '../lib/global-styles';
 
 export interface CourseDialogProps {
   open: boolean
@@ -40,15 +41,9 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
   const [isLoading, setIsLoading] = React.useState(false);
   const [courseForm, setCourseForm] = React.useState<CourseForm>(getInitialValues(course));
   const [domains] = useApiResult<IDomain[]>('domains', 'GET');
-  const sortedDomains = React.useMemo(() => (
-    [...domains || []].sort((a, b) => {
-      if(a.type === b.type) return a.name.localeCompare(b.name);
-      return a.type.localeCompare(b.type);
-    }
-  )), [domains]);
   const selectedSpecialization = React.useMemo(() => (
-    sortedDomains.flatMap((domain) => domain.specializations || []).find((specialization) => specialization.id === courseForm.specializationId)
-  ), [sortedDomains, courseForm.specializationId]);
+    (domains || []).flatMap((domain) => domain.specializations || []).find((specialization) => specialization.id === courseForm.specializationId)
+  ), [domains, courseForm.specializationId]);
 
   React.useEffect(() => {
     if(!open) return;
@@ -116,9 +111,9 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
               required
               onChange={(e) => setCourseFormField('specializationId', e.target.value)}
             >
-              {sortedDomains?.map((domain) => ([
+              {domains?.map((domain) => ([
                 domain.specializations!.length > 0 && (
-                  <ListSubheader key={domain.id}>
+                  <ListSubheader key={domain.id} sx={globalStyles.elipsis}>
                     <em>{domain.name} {domain.studyForm} – {DOMAIN_TYPES[domain.type]}</em>
                   </ListSubheader>
                 ),

@@ -22,17 +22,32 @@ export class CoursesService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
+  private createQueryBuilder() {
+    return this.coursesRepository.createQueryBuilder('course')
+      .innerJoinAndSelect('course.user', 'user')
+      .innerJoinAndSelect('course.specialization', 'specialization')
+      .innerJoinAndSelect('specialization.domain', 'domain')
+      .addOrderBy('domain.type', 'ASC')
+      .addOrderBy("(CASE WHEN domain.studyForm = 'IF' THEN 0 ELSE 1 END)")
+      .addOrderBy('specialization.name', 'ASC')
+      .addOrderBy('specialization.id', 'ASC')
+      .addOrderBy('course.year', 'ASC')
+      .addOrderBy('course.semester', 'ASC')
+      .addOrderBy('course.optional', 'ASC')
+      .addOrderBy('course.credits', 'ASC');
+  }
+
   async findAll(courseQueryDto?: CourseQueryDto) {
     const { specializationId, ...where } = courseQueryDto as Record<string, any>;
     if (specializationId) {
       where.specialization = { id: courseQueryDto.specializationId };
     }
-    return this.coursesRepository.find({ where });
+    return this.createQueryBuilder().where(where).getMany();
   }
 
   async findAllByUserId(userId: string) {
     const user = await this.usersService.findOne(userId);
-    return this.coursesRepository.find({ where: { user } });
+    return this.createQueryBuilder().where({ user }).getMany();
   }
 
   async findOne(id: string) {

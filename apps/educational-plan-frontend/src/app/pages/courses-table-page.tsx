@@ -32,18 +32,6 @@ export default function CoursesTablePage() {
 
   const [courses, error, loading, refresh] = useApiResult<ICourse[]>('courses', 'GET');
 
-  const sortedCourses = React.useMemo(() => {
-    if(!courses) return [];
-    const specializationSortKey = (s: ISpecialization) => `${s.domain.type}-${s.domain.studyForm}-${s.name}-${s.id}`;
-    return [...courses].sort((a, b) => {
-      if(a.specialization.id !== b.specialization.id) return specializationSortKey(a.specialization).localeCompare(specializationSortKey(b.specialization));
-      if(a.year !== b.year) return a.year - b.year;
-      if(a.semester !== b.semester) return a.semester - b.semester;
-      if(a.credits !== b.credits) return a.credits - b.credits;
-      return a.name.localeCompare(b.name);
-    });
-  }, [courses]);
-
   return (
     <Box>
       <Box sx={{ display: 'flex', mb: 2 }}>
@@ -84,7 +72,7 @@ export default function CoursesTablePage() {
                 </TableCell>
               </TableRow>
             )}
-            {sortedCourses?.map((course) => (
+            {courses?.map((course) => (
               <TableRow key={course.id}>
                 <TableCell component="th" scope="row">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -113,25 +101,32 @@ export default function CoursesTablePage() {
               </TableRow>
             ))}
           </TableBody>
-          {/* <TableFooter>
-            <TableRow>
-              <TablePagination
-                count={courses?.length || 0}
-                page={page}
-                onPageChange={(_, nextPage) => setPage(nextPage)}
-                rowsPerPage={rowsPerPage}
-                rowsPerPageOptions={rowsPerPageOptions as any}
-                ActionsComponent={TablePaginationActions}
-                onRowsPerPageChange={(e) => {
-                  setRowsPerPage(e.target.value as any);
-                  setPage(0);
-                }}
-                labelRowsPerPage='Rezultate pe pagină:'
-                labelDisplayedRows={({ from, to, count }) => `${from}-${to} din ${count}`}
-                sx={{ color: 'text.secondary', borderBottom: 'none' }}
-              />
-            </TableRow>
-          </TableFooter> */}
+          <TableFooter>
+            {courses && (
+              <TableRow>
+                <TableCell sx={{ borderBottom: 'none' }}>
+                  <Typography color="text.secondary" variant="caption" component="div">
+                    {courses.length} rezultate.
+                  </Typography>
+                </TableCell>
+                {/* <TablePagination
+                  count={courses?.length || 0}
+                  page={page}
+                  onPageChange={(_, nextPage) => setPage(nextPage)}
+                  rowsPerPage={rowsPerPage}
+                  rowsPerPageOptions={rowsPerPageOptions as any}
+                  ActionsComponent={TablePaginationActions}
+                  onRowsPerPageChange={(e) => {
+                    setRowsPerPage(e.target.value as any);
+                    setPage(0);
+                  }}
+                  labelRowsPerPage='Rezultate pe pagină:'
+                  labelDisplayedRows={({ from, to, count }) => `${from}-${to} din ${count}`}
+                  sx={{ color: 'text.secondary', borderBottom: 'none' }}
+                /> */}
+              </TableRow>
+            )}
+          </TableFooter>
         </Table>
       </TableContainer>
     </Box>

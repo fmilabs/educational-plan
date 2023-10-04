@@ -4,6 +4,7 @@ import { apiCall, groupBy, romanize, useApiResult } from "../lib/utils";
 import { DOMAIN_TYPES, ICourse, IDomain } from "@educational-plan/types";
 import { Alert, Box, Card, CardContent, CircularProgress, FormControl, Grid, InputLabel, ListSubheader, MenuItem, Paper, Select, Skeleton, Typography } from "@mui/material";
 import LoadingShade from "../components/loading-shade";
+import { globalStyles } from "../lib/global-styles";
 
 type SearchParamKey = "specializationId" | "year" | "semester";
 
@@ -13,16 +14,10 @@ export default function AllCoursesPage() {
   const year = searchParams.get("year") || '';
   const semester = searchParams.get("semester") || '';
   const [domains, domainsError, loadingDomains] = useApiResult<IDomain[]>("domains", "GET");
-  const sortedDomains = React.useMemo(() => (
-    [...domains || []].sort((a, b) => {
-      if(a.type === b.type) return a.name.localeCompare(b.name);
-      return a.type.localeCompare(b.type);
-    }
-  )), [domains]);
 
   const specializations = React.useMemo(() => (
-    sortedDomains.flatMap((domain) => domain.specializations || [])
-  ), [sortedDomains]);
+    (domains || []).flatMap((domain) => domain.specializations?.map(spec => ({ ...spec, domain })) || [])
+  ), [domains]);
 
   const selectedSpecialization = React.useMemo(() => (
     specializations.find((specialization) => specialization.id === specializationId)
@@ -98,9 +93,9 @@ export default function AllCoursesPage() {
                   required
                   onChange={(e) => setSearchParam('specializationId', e.target.value!)}
                 >
-                  {sortedDomains?.map((domain) => ([
+                  {domains?.map((domain) => ([
                     domain.specializations!.length > 0 && (
-                      <ListSubheader key={domain.id}>
+                      <ListSubheader key={domain.id} sx={globalStyles.elipsis}>
                         <em>{domain.name} {domain.studyForm} – {DOMAIN_TYPES[domain.type]}</em>
                       </ListSubheader>
                     ),
