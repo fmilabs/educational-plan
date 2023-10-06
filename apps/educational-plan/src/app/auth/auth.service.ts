@@ -6,9 +6,11 @@ import { hashSync, compareSync } from "bcrypt";
 import { JwtPayloadDto } from './dto/JwtPayloadDto';
 import { User } from '../users/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { AuthResponse } from '@educational-plan/types';
+import { AuthResponse, Role } from '@educational-plan/types';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { MSGraphUser } from './interfaces/ms-graph-user.interface';
+import { capitalize, split } from '../lib/util';
 
 @Injectable()
 export class AuthService {
@@ -84,13 +86,22 @@ export class AuthService {
     }
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get('https://graph.microsoft.com/v1.0/me', {
+        this.httpService.get<MSGraphUser>('https://graph.microsoft.com/v1.0/me', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
       );
-      return this.usersService.findOneByEmail(data.mail);
+      const existingUser = await this.usersService.findOneByEmail(data.userPrincipalName);
+      if(!existingUser && data.userPrincipalName.endsWith('@unibuc.ro')) {
+        return this.usersService.create({
+          firstName: split(data.givenName, [' ', '-']).map(capitalize).join(' '),
+          lastName: capitalize(data.surname),
+          email: data.userPrincipalName,
+          role: Role.Teacher,
+        });
+      }
+      return existingUser;
     } catch (error) {
       return null;
     }
