@@ -54,6 +54,9 @@ export class CoursesController {
   @Put(':id')
   async update(@Param('id') id: string, @Body() courseDto: UpdateCourseDto, @CurrentUser() user: User) {
     await this.editGuard(id, user);
+    if(user.role != Role.Admin || !courseDto.userId) {
+      courseDto.userId = user.id;
+    }
     return this.coursesService.update(id, courseDto);
   }
 

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Paginated } from '../lib/types/Paginated';
 import { UserQueryDto } from './dto/user-query.dto';
@@ -29,7 +29,9 @@ export class UsersService {
 
   async findAll(opts?: UserQueryDto): Promise<Paginated<User>> {
     const where: FindOptionsWhere<User>[] = [];
-
+    if(opts?.email) {
+      where.push({ email: ILike(`%${opts.email}%`) });
+    }
     const [data, count] = await this.usersRepository.findAndCount({
       take: opts?.limit,
       skip: opts?.offset,

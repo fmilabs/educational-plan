@@ -1,5 +1,5 @@
 import React from 'react';
-import { DOMAIN_TYPES, ICourse, IDomain } from "@educational-plan/types";
+import { DOMAIN_TYPES, ICourse, IDomain, IUser, Paginated, Role } from "@educational-plan/types";
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,8 +14,9 @@ import MenuItem from '@mui/material/MenuItem';
 import ListSubheader from '@mui/material/ListSubheader';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import { FormControlLabel, Switch } from '@mui/material';
+import { Autocomplete, autocompleteClasses, Box, CircularProgress, FormControlLabel, Switch } from '@mui/material';
 import { globalStyles } from '../lib/global-styles';
+import { useAuth } from '../contexts/auth.context';
 
 export interface CourseDialogProps {
   open: boolean
@@ -38,6 +39,7 @@ function getInitialValues(course?: ICourse): CourseForm {
 
 export default function CourseDialog({ open, onClose, course }: CourseDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
+  const { state: { user }} = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   const [courseForm, setCourseForm] = React.useState<CourseForm>(getInitialValues(course));
   const [domains] = useApiResult<IDomain[]>('domains', 'GET');
@@ -45,13 +47,42 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
     (domains || []).flatMap((domain) => domain.specializations || []).find((specialization) => specialization.id === courseForm.specializationId)
   ), [domains, courseForm.specializationId]);
 
+  const [userAutocompleteOpen, setUserAutocompleteOpen] = React.useState(false);
+  const [users, setUsers] = React.useState<readonly IUser[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = React.useState(false);
+  const [selectedTeacher, setSelectedTeacher] = React.useState<IUser | null>(course?.user || null);
+  const [userQuery, setUserQuery] = React.useState('');
+
   React.useEffect(() => {
     if(!open) return;
     setCourseForm(getInitialValues(course));
+    setSelectedTeacher(course?.user || null);
   }, [course, open]);
+
+  React.useEffect(() => {
+    fetchUsers();
+  }, [userQuery]);
 
   function setCourseFormField<K extends keyof CourseForm>(field: K, value: CourseForm[K]) {
     setCourseForm((courseForm) => ({ ...courseForm, [field]: value }));
+  }
+
+  const handleAutocompleteOpen = async () => {
+    setUserAutocompleteOpen(true);
+    fetchUsers();
+  };
+
+  const fetchUsers = async () => {
+    if(user?.role !== Role.Admin) return;
+    try {
+      setIsLoadingUsers(true);
+      const users = await apiCall<Paginated<IUser>>(`users?limit=10&email=${userQuery}`, 'GET');
+      setUsers(users.data);
+    } catch (error) {
+      enqueueSnackbar('A apărut o eroare.');
+    } finally {
+      setIsLoadingUsers(false);
+    }
   }
 
   async function saveCourse(e: React.FormEvent<HTMLFormElement>) {
@@ -59,7 +90,10 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
     try {
       setIsLoading(true);
       let result: IDomain;
-      const courseFormData = { ...courseForm, maxStudents: courseForm.maxStudents || null };
+      const courseFormData: Record<string, any> = { ...courseForm, maxStudents: courseForm.maxStudents || null };
+      if(selectedTeacher) {
+        courseFormData.userId = selectedTeacher.id;
+      }
       if(!course) {
         result = await apiCall('courses', 'POST', courseFormData);
       } else {
@@ -77,9 +111,58 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
   return (
     <Dialog open={open} onClose={() => onClose('dismiss')} fullWidth maxWidth={'xs'}>
       { isLoading && <LoadingShade mode='linear' /> }
-      <form id="domainForm" onSubmit={saveCourse}>
+      <form id="courseForm" onSubmit={saveCourse}>
         <DialogTitle>{!course ? 'Adăugare curs' : 'Editare curs' }</DialogTitle>
         <DialogContent>
+          {user?.role === Role.Admin && (
+            <Autocomplete
+              value={selectedTeacher}
+              open={userAutocompleteOpen}
+              onOpen={handleAutocompleteOpen}
+              onClose={() => setUserAutocompleteOpen(false)}
+              filterOptions={(x) => x}
+              isOptionEqualToValue={(option, value) => option.email === value.email}
+              getOptionLabel={(option) => option.email}
+              renderOption={(props, option) => {
+                return (
+                  <Box
+                    sx={{
+                      [`&.${autocompleteClasses.option}`]: {
+                        padding: '8px',
+                      },
+                    }}
+                    component="li"
+                    {...props}
+                  >
+                    {option.email} – {option.firstName} {option.lastName}
+                  </Box>
+                );
+              }}
+              options={users}
+              loading={isLoadingUsers}
+              onInputChange={(_, value) => setUserQuery(value)}
+              onChange={(_, value) => setSelectedTeacher(value)}
+              noOptionsText='Niciun rezultat'
+              loadingText='Se încarcă...'
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Profesor"
+                  margin="dense"
+                  fullWidth
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {isLoadingUsers ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
+          )}
           <TextField
             autoFocus
             name='courseName'

@@ -28,4 +28,6 @@ export class UpdateCourseDto {
   @IsUUID()
   specializationId: string;
 
+  userId: string;
+
 }

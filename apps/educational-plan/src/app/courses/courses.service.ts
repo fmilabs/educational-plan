@@ -69,7 +69,8 @@ export class CoursesService {
   async update(id: string, courseDto: UpdateCourseDto) {
     const course = await this.findOne(id);
     const specialization = await this.specializationsService.findOne(courseDto.specializationId);
-    const result = await this.coursesRepository.save({ ...course, ...courseDto, specialization });
+    const user = await this.usersService.findOne(courseDto.userId);
+    const result = await this.coursesRepository.save({ ...course, ...courseDto, specialization, user });
     this.cacheManager.reset();
     return result;
   }
