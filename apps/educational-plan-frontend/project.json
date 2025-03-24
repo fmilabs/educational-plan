@@ -1,5 +1,5 @@
 {
-  "name": "apps/educational-plan-frontend",
+  "name": "educational-plan-frontend",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/educational-plan-frontend/src",
   "projectType": "application",
@@ -51,15 +51,15 @@
       "executor": "@nx/webpack:dev-server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "apps/educational-plan-frontend:build",
+        "buildTarget": "educational-plan-frontend:build",
         "hmr": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "apps/educational-plan-frontend:build:development"
+          "buildTarget": "educational-plan-frontend:build:development"
         },
         "production": {
-          "buildTarget": "apps/educational-plan-frontend:build:production",
+          "buildTarget": "educational-plan-frontend:build:production",
           "hmr": false
         }
       }
