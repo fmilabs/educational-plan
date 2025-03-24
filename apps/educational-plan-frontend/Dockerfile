@@ -4,7 +4,7 @@ ARG NODE_ENV
 ARG BUILD_FLAG
 WORKDIR /app/builder
 COPY . .
-RUN npx nx run apps/educational-plan-frontend:build --configuration=production
+RUN npx nx run educational-plan-frontend:build --configuration=production
 
 FROM nginx:1.20.2-alpine
 COPY --from=builder /app/builder/dist/apps/educational-plan-frontend /usr/share/nginx/html
