@@ -1,10 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UnauthorizedException, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { CacheKey, CacheTTL, CacheInterceptor } from '@nestjs/cache-manager';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UnauthorizedException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { CacheTTL, CacheInterceptor } from '@nestjs/cache-manager';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Multer } from 'multer';
+import 'multer';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { Role } from '@educational-plan/types';
@@ -12,6 +12,7 @@ import { Public } from '../auth/decorators/public.decorator';
 import { CourseQueryDto } from './dto/course-query.dto';
 
 @Controller('courses')
+@UseInterceptors(ClassSerializerInterceptor)
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 

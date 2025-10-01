@@ -24,7 +24,7 @@ export interface CourseDialogProps {
   course?: ICourse;
 }
 
-type CourseForm = Omit<ICourse, 'id' | 'curriculumPath' | 'user' | 'specialization'> & { specializationId: string };
+type CourseForm = Omit<ICourse, 'id' | 'curriculumPath' | 'user' | 'specialization' | 'createdAt' | 'updatedAt' | 'curriculumUpdatedAt' | 'isOutdated'> & { specializationId: string };
 function getInitialValues(course?: ICourse): CourseForm {
   return {
     name: course?.name || '',

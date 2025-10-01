@@ -53,6 +53,11 @@ export default function MyCoursesPage() {
                 <Typography variant="body2" color="text.secondary">
                   Anul {course.year}, semestrul {course.semester}
                 </Typography>
+                {course.isOutdated && (
+                  <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>
+                    Necesită încărcarea fișei cursului
+                  </Typography>
+                )}
               </CardContent>
               <CardActions>
                 <Link to={`/courses/${course.id}`}>

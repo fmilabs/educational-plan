@@ -146,6 +146,14 @@ export default function CoursePage() {
               )}
             </PopupState>
           </Box>
+          {course.isOutdated && (
+            <Alert severity="warning">
+              { !canEdit
+                ? 'Actualizați informațiile despre acest curs încărcând o nouă fișă a cursului.'
+                : 'Este posibil ca informațiile despre acest curs să fie învechite. Profesorul le va actualiza în curând.'
+              }
+            </Alert>
+          )}
           <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
             <ListItem disableGutters>
               <ListItemText primary="Nume curs" secondary={course.name} />

@@ -23,6 +23,7 @@ import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import OptionalIcon from '@mui/icons-material/AltRoute';
+import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
 import LoadingShade from '../components/loading-shade';
@@ -80,6 +81,11 @@ export default function CoursesTablePage() {
                     {course.optional && (
                       <Tooltip title="Curs opțional">
                         <OptionalIcon sx={{ width: '0.5em', height: '0.5em', ml: 0.5, color: 'text.secondary' }} />
+                      </Tooltip>
+                    )}
+                    {course.isOutdated && (
+                      <Tooltip title="Informații învechite">
+                        <ErrorIcon sx={{ width: '0.5em', height: '0.5em', ml: 0.5, color: 'warning.main' }} />
                       </Tooltip>
                     )}
                   </Box>

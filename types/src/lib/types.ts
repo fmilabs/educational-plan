@@ -41,6 +41,10 @@ export interface ICourse {
   curriculumPath: string;
   specialization: ISpecialization;
   user: IUser;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  curriculumUpdatedAt: Date | string;
+  isOutdated: boolean;
 }
 
 export interface IUser {

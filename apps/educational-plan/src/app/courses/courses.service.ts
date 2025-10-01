@@ -80,7 +80,12 @@ export class CoursesService {
     const fileId = uuid.v4();
     const curriculumPath = safePath(__dirname, 'uploads', `${fileId}.pdf`);
     fs.writeFileSync(curriculumPath, curricullumFile);
-    const result = await this.coursesRepository.save({ ...course, curriculumPath: `/uploads/${fileId}.pdf` });
+    const result = await this.coursesRepository.save({
+      ...course,
+      curriculumPath: `/uploads/${fileId}.pdf`,
+      curriculumUpdatedAt: new Date(),
+      updatedAt: new Date(),
+    });
     this.cacheManager.reset();
     return result;
   }
