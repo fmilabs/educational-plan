@@ -148,7 +148,7 @@ export default function CoursePage() {
           </Box>
           {course.isOutdated && (
             <Alert severity="warning">
-              { !canEdit
+              { canEdit
                 ? 'Actualizați informațiile despre acest curs încărcând o nouă fișă a cursului.'
                 : 'Este posibil ca informațiile despre acest curs să fie învechite. Profesorul le va actualiza în curând.'
               }
