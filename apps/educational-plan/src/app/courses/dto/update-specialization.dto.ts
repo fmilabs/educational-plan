@@ -1,16 +1,3 @@
-import { IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { CreateSpecializationDto } from "./create-specialization.dto";
 
-export class UpdateSpecializationDto {
-
-  @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
-  domainId: string;
-
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  studyYears: number;
-
-}
+export class UpdateSpecializationDto extends CreateSpecializationDto {}

@@ -30,15 +30,26 @@ export class SpecializationsService {
     return specialization;
   }
 
-  async create(specializationDto: CreateSpecializationDto) {
-    const domain = await this.domainsService.findOne(specializationDto.domainId);
-    return this.specializationsRepository.save({ ...specializationDto, domain });
+  async create({ series, ...dtoRest }: CreateSpecializationDto) {
+    const domain = await this.domainsService.findOne(dtoRest.domainId);
+    return this.specializationsRepository.save({
+      ...dtoRest,
+      domain,
+      series: series.map(number => ({ number })),
+    });
   }
 
-  async update(id: string, specializationDto: UpdateSpecializationDto) {
+  async update(id: string, { series, ...dtoRest }: UpdateSpecializationDto) {
     const specialization = await this.findOne(id);
-    const domain = await this.domainsService.findOne(specializationDto.domainId);
-    return this.specializationsRepository.save({ ...specialization, ...specializationDto, domain });
+    const domain = await this.domainsService.findOne(dtoRest.domainId);
+    const existingSeries = specialization.series.reduce((acc, series) => ({ ...acc, [series.number]: series }), {} as Record<number, any>);
+    const updatedSeries = series.map(number => {
+      if(existingSeries[number]) {
+        return existingSeries[number];
+      }
+      return { number };
+    });
+    return this.specializationsRepository.save({ ...specialization, ...dtoRest, domain, series: updatedSeries });
   }
 
   async delete(id: string) {

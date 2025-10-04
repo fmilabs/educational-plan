@@ -15,10 +15,12 @@ export class DomainsService {
   async findAll() {
     return this.domainsRepository.createQueryBuilder('domain')
       .leftJoinAndSelect('domain.specializations', 'specialization')
+      .leftJoinAndSelect('specialization.series', 'series')
       .addOrderBy('domain.type', 'ASC')
       .addOrderBy("(CASE WHEN domain.studyForm = 'IF' THEN 0 ELSE 1 END)")
       .addOrderBy('domain.name', 'ASC')
       .addOrderBy('specialization.name', 'ASC')
+      .addOrderBy('series.number', 'ASC')
       .getMany();
   }
 

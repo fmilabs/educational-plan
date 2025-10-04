@@ -1,8 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from "typeorm";
 import { ICourse } from "@educational-plan/types";
 import { Specialization } from "./specialization.entity";
 import { User } from "../../users/entities/user.entity";
 import { Expose } from "class-transformer";
+import { Series } from "./series.entity";
 
 @Entity()
 export class Course implements ICourse {
@@ -33,6 +34,9 @@ export class Course implements ICourse {
 
   @ManyToOne(() => Specialization, (specialization) => specialization.courses, { onDelete: 'CASCADE', eager: true })
   specialization: Specialization;
+
+  @ManyToOne(() => Series, (series) => series.courses, { onDelete: 'SET NULL', eager: true, nullable: true })
+  series: Series | null;
 
   @ManyToOne(() => User, (user) => user.courses, { onDelete: 'CASCADE', eager: true })
   user: User;

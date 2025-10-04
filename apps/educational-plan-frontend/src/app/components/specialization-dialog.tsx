@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import { apiCall } from '../lib/utils';
 import { useSnackbar } from 'notistack';
 import LoadingShade from './loading-shade';
+import { Autocomplete } from '@mui/material';
 
 export interface SpecializationDialogProps {
   open: boolean
@@ -17,7 +18,7 @@ export interface SpecializationDialogProps {
   specialization?: ISpecialization;
 }
 
-type SpecializationForm = Omit<ISpecialization, 'id' | 'domain'> & { domainId: string };
+type SpecializationForm = Omit<ISpecialization, 'id' | 'domain' | 'series'> & { domainId: string; series: number[] };
 
 export default function SpecializationDialog({ open, onClose, specialization }: SpecializationDialogProps) {
   const { enqueueSnackbar } = useSnackbar();
@@ -26,6 +27,7 @@ export default function SpecializationDialog({ open, onClose, specialization }: 
   const [specializationForm, setSpecializationForm] = React.useState<SpecializationForm>({
     name: specialization?.name || '',
     studyYears: specialization?.studyYears || '' as any,
+    series: specialization?.series?.map(s => s.number) || [],
     domainId: domainId!,
   });
 
@@ -34,6 +36,7 @@ export default function SpecializationDialog({ open, onClose, specialization }: 
     setSpecializationForm({
       name: specialization?.name || '',
       studyYears: specialization?.studyYears || '' as any,
+      series: specialization?.series?.map(s => s.number) || [],
       domainId: domainId!,
     });
   }, [specialization, open]);
@@ -87,6 +90,26 @@ export default function SpecializationDialog({ open, onClose, specialization }: 
             InputProps={{ inputProps: { min: 0, max: 10 } }}
             value={specializationForm.studyYears}
             onChange={(e) => setSpecializationFormField('studyYears', +e.target.value || '' as any)}
+          />
+          <Autocomplete
+            multiple
+            options={[]}
+            freeSolo
+            value={specializationForm.series}
+            onChange={(_, newValue) => {
+              setSpecializationFormField('series', newValue.map(v => parseInt(v as string)).filter(v => !isNaN(v) && v >= 0 && v < 10));
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Serii"
+                type='number'
+                margin="dense"
+                inputMode='numeric'
+                fullWidth
+                helperText='Apăsați Enter după fiecare serie adăugată. Seria trebuie să fie un număr între 0 și 9.'
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>

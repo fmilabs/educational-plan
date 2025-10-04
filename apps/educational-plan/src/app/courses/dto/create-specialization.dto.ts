@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
 
 export class CreateSpecializationDto {
 
@@ -12,5 +12,10 @@ export class CreateSpecializationDto {
   @IsNumber()
   @Min(1)
   studyYears: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  series: number[] = [];
 
 }

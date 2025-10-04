@@ -159,7 +159,10 @@ export default function DomainPage() {
             <List sx={{ width: '100%', bgcolor: 'background.paper' }} disablePadding>
               {domain.specializations?.map((specialization) => (
                 <ListItem disableGutters key={specialization.id}>
-                  <ListItemText primary={specialization.name} secondary={`${specialization.studyYears} ani de studiu`} />
+                  <ListItemText
+                    primary={specialization.name}
+                    secondary={`${specialization.studyYears} ani de studiu` + (specialization.series.length > 0 ? `; ${specialization.series.length} serii` : '')}
+                  />
                   <IconButton onClick={(e) => setSpecializationMenu({ specialization, anchor: e.currentTarget })}>
                     <MoreIcon />
                   </IconButton>
