@@ -21,11 +21,11 @@ import { useAuth } from '../contexts/auth.context';
 export interface CourseDialogProps {
   open: boolean
   onClose: (result: 'dismiss' | 'save', domain?: IDomain) => void;
-  course?: ICourse;
+  course?: Partial<ICourse>;
 }
 
 type CourseForm = Omit<ICourse, 'id' | 'curriculumPath' | 'user' | 'specialization' | 'series' | 'createdAt' | 'updatedAt' | 'curriculumUpdatedAt' | 'isOutdated'> & { specializationId: string; seriesId: string | null; };
-function getInitialValues(course?: ICourse): CourseForm {
+function getInitialValues(course?: Partial<ICourse>): CourseForm {
   return {
     name: course?.name || '',
     credits: course?.credits || '' as any,
@@ -99,7 +99,7 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
       if(selectedTeacher) {
         courseFormData.userId = selectedTeacher.id;
       }
-      if(!course) {
+      if(!course || !course.id) {
         result = await apiCall('courses', 'POST', courseFormData);
       } else {
         result = await apiCall(`courses/${course.id}`, 'PUT', courseFormData);
@@ -117,7 +117,7 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
     <Dialog open={open} onClose={() => onClose('dismiss')} fullWidth maxWidth={'xs'}>
       { isLoading && <LoadingShade mode='linear' /> }
       <form id="courseForm" onSubmit={saveCourse}>
-        <DialogTitle>{!course ? 'Adăugare curs' : 'Editare curs' }</DialogTitle>
+        <DialogTitle>{(!course || !course.id) ? 'Adăugare curs' : 'Editare curs' }</DialogTitle>
         <DialogContent>
           {user?.role === Role.Admin && (
             <Autocomplete

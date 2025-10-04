@@ -1,10 +1,16 @@
 import React from 'react';
-import { DOMAIN_TYPES, ICourse, ISpecialization } from '@educational-plan/types';
-import { apiCall, romanize, useApiResult } from '../lib/utils';
+import { DOMAIN_TYPES, ICourse, IDomain } from '@educational-plan/types';
+import { romanize, useApiResult } from '../lib/utils';
 import {
   Box,
   Button,
+  FormControl,
+  Grid,
+  InputLabel,
+  ListSubheader,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -25,13 +31,53 @@ import LastPageIcon from '@mui/icons-material/LastPage';
 import OptionalIcon from '@mui/icons-material/AltRoute';
 import ErrorIcon from '@mui/icons-material/ErrorOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
 import { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
 import LoadingShade from '../components/loading-shade';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { globalStyles } from '../lib/global-styles';
+import CourseDialog, { CourseDialogProps } from '../components/course-dialog';
+
+type SearchParamKey = "specializationId" | "year" | "semester";
 
 export default function CoursesTablePage() {
+  let [searchParams, setSearchParams] = useSearchParams();
+  const specializationId = searchParams.get("specializationId") || '';
+  const year = searchParams.get("year") || '';
+  const semester = searchParams.get("semester") || '';
+  function setSearchParam<K extends SearchParamKey>(key: K, value: string) {
+    searchParams.set(key, value);
+    setSearchParams(searchParams);
+  }
+  const [domains] = useApiResult<IDomain[]>("domains", "GET");
+  const specializations = React.useMemo(() => (
+    (domains || []).flatMap((domain) => domain.specializations?.map(spec => ({ ...spec, domain })) || [])
+  ), [domains]);
+
+  const selectedSpecialization = React.useMemo(() => (
+    specializations.find((specialization) => specialization.id === specializationId)
+  ), [specializations, specializationId]);
 
   const [courses, error, loading, refresh] = useApiResult<ICourse[]>('courses', 'GET');
+
+  const [courseDialogProps, setCourseDialogProps] = React.useState<CourseDialogProps>({
+    open: false,
+    onClose: (result) => {
+      if(result === 'save') {
+        refresh();
+      }
+      setCourseDialogProps((props) => ({ ...props, open: false, course: undefined }));
+    }
+  });
+
+  const filteredCourses = React.useMemo(() => {
+    return (courses || []).filter((course) => {
+      if(specializationId && course.specialization.id !== specializationId) return false;
+      if(year && course.year.toString() !== year) return false;
+      if(semester && course.semester.toString() !== semester) return false;
+      return true;
+    });
+  }, [courses, specializationId, year, semester]);
 
   return (
     <Box>
@@ -39,7 +85,80 @@ export default function CoursesTablePage() {
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Cursuri
         </Typography>
+        <Button
+          variant="outlined"
+          onClick={() => setCourseDialogProps((props) => ({
+            ...props,
+            open: true,
+            course: {
+              specialization: selectedSpecialization,
+              year: year ? parseInt(year) : undefined,
+              semester: semester ? parseInt(semester) : undefined,
+            }
+          }))}
+        >
+          Adăugați
+        </Button>
       </Box>
+       <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
+            <Grid item xs={12}>
+              <FormControl fullWidth required>
+                <InputLabel htmlFor="specializationId">Program de studiu</InputLabel>
+                <Select
+                  id="specializationId"
+                  value={specializationId}
+                  label="Program de studiu"
+                  required
+                  onChange={(e) => setSearchParam('specializationId', e.target.value!)}
+                >
+                  {domains?.map((domain) => ([
+                    domain.specializations!.length > 0 && (
+                      <ListSubheader key={domain.id} sx={globalStyles.elipsis}>
+                        <em>{domain.name} {domain.studyForm} – {DOMAIN_TYPES[domain.type]}</em>
+                      </ListSubheader>
+                    ),
+                    ...(domain.specializations || []).map((specialization) => (
+                      <MenuItem key={specialization.id} value={specialization.id} sx={{ pl: 4 }}>
+                        {specialization.name}
+                      </MenuItem>
+                    ))
+                  ]))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth disabled={!selectedSpecialization}>
+                <InputLabel id="year">An</InputLabel>
+                <Select
+                  labelId="year"
+                  value={year}
+                  label="An"
+                  onChange={(e) => setSearchParam('year', e.target.value)}
+                >
+                  {Array.from({ length: selectedSpecialization?.studyYears || 0 }).map((_, i) => (
+                    <MenuItem key={i} value={i + 1}>Anul {i + 1}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth disabled={!selectedSpecialization || !year}>
+                <InputLabel id="semester">Semestru</InputLabel>
+                <Select
+                  labelId="semester"
+                  value={semester}
+                  label="Semestru"
+                  onChange={(e) => setSearchParam('semester', e.target.value)}
+                >
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <MenuItem key={i} value={i + 1}>Semestrul {romanize(i + 1)}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </Paper>
       <TableContainer component={Paper} sx={{ position: 'relative' }}>
         {loading && <LoadingShade />}
         <Table sx={{ width: '100%' }}>
@@ -52,13 +171,13 @@ export default function CoursesTablePage() {
               <TableCell>Semestru</TableCell>
               <TableCell>Seria</TableCell>
               <TableCell>Credite</TableCell>
-              <TableCell sx={{ width: '90px' }}>Acțiuni</TableCell>
+              <TableCell sx={{ width: '80px' }}>Acțiuni</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {courses?.length === 0 && (
+            {filteredCourses?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={8}>
                   <Typography color='text.secondary'>
                     Nu există cursuri.
                   </Typography>
@@ -67,14 +186,14 @@ export default function CoursesTablePage() {
             )}
             {error && (
               <TableRow>
-                <TableCell colSpan={7}>
+                <TableCell colSpan={8}>
                   <Typography color='text.secondary'>
                     A apărut o eroare.
                   </Typography>
                 </TableCell>
               </TableRow>
             )}
-            {courses?.map((course) => (
+            {filteredCourses?.map((course) => (
               <TableRow key={course.id}>
                 <TableCell component="th" scope="row">
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -101,20 +220,23 @@ export default function CoursesTablePage() {
                 <TableCell>{romanize(course.semester)}</TableCell>
                 <TableCell>{course.series ? `${course.year}${course.series.number}` : ''}</TableCell>
                 <TableCell>{course.credits}</TableCell>
-                <TableCell sx={{ p: 0, minWidth: '40px', textAlign: 'center' }}>
+                <TableCell sx={{ p: 0, minWidth: '80px', textAlign: 'center' }}>
                   <IconButton component={Link} to={`/courses/${course.id}`}>
                     <VisibilityIcon />
+                  </IconButton>
+                  <IconButton onClick={() => setCourseDialogProps((props) => ({ ...props, open: true, course }))}>
+                    <EditIcon />
                   </IconButton>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
           <TableFooter>
-            {courses && (
+            {filteredCourses && (
               <TableRow>
                 <TableCell sx={{ borderBottom: 'none' }}>
                   <Typography color="text.secondary" variant="caption" component="div">
-                    {courses.length} rezultate.
+                    {filteredCourses.length} rezultate.
                   </Typography>
                 </TableCell>
                 {/* <TablePagination
@@ -137,6 +259,7 @@ export default function CoursesTablePage() {
           </TableFooter>
         </Table>
       </TableContainer>
+      <CourseDialog {...courseDialogProps} />
     </Box>
   );
 }
