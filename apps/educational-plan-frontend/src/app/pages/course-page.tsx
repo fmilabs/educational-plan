@@ -186,6 +186,11 @@ export default function CoursePage() {
                 <ListItemText primary="Număr maxim de studenți" secondary={course.maxStudents} />
               </ListItem>
             )}
+            {course.series && (
+              <ListItem disableGutters>
+                <ListItemText primary="Seria" secondary={[course.year, course.series.number].join('')} />
+              </ListItem>
+            )}
           </List>
           <Box sx={{ mt: 2 }}>
             <Typography variant="h5" component="h1" sx={{ mb: 2 }}>

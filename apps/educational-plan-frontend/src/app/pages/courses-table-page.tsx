@@ -50,6 +50,7 @@ export default function CoursesTablePage() {
               <TableCell>Specializare</TableCell>
               <TableCell>An</TableCell>
               <TableCell>Semestru</TableCell>
+              <TableCell>Seria</TableCell>
               <TableCell>Credite</TableCell>
               <TableCell sx={{ width: '90px' }}>Acțiuni</TableCell>
             </TableRow>
@@ -98,6 +99,7 @@ export default function CoursesTablePage() {
                 </TableCell>
                 <TableCell>{course.year}</TableCell>
                 <TableCell>{romanize(course.semester)}</TableCell>
+                <TableCell>{course.series ? `${course.year}${course.series.number}` : ''}</TableCell>
                 <TableCell>{course.credits}</TableCell>
                 <TableCell sx={{ p: 0, minWidth: '40px', textAlign: 'center' }}>
                   <IconButton component={Link} to={`/courses/${course.id}`}>

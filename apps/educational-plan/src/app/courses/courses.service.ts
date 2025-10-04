@@ -25,6 +25,7 @@ export class CoursesService {
   private createQueryBuilder() {
     return this.coursesRepository.createQueryBuilder('course')
       .innerJoinAndSelect('course.user', 'user')
+      .leftJoinAndSelect('course.series', 'series')
       .innerJoinAndSelect('course.specialization', 'specialization')
       .innerJoinAndSelect('specialization.domain', 'domain')
       .addOrderBy('domain.type', 'ASC')
@@ -34,7 +35,9 @@ export class CoursesService {
       .addOrderBy('course.year', 'ASC')
       .addOrderBy('course.semester', 'ASC')
       .addOrderBy('course.optional', 'ASC')
-      .addOrderBy('course.credits', 'ASC');
+      .addOrderBy('series.number', 'ASC')
+      .addOrderBy('course.credits', 'ASC')
+      .addOrderBy('course.name', 'ASC');
   }
 
   async findAll(courseQueryDto?: CourseQueryDto) {
@@ -60,8 +63,9 @@ export class CoursesService {
 
   async create(courseDto: CreateCourseDto) {
     const specialization = await this.specializationsService.findOne(courseDto.specializationId);
+    const series = specialization.series.find(s => s.id === courseDto.seriesId) || null;
     const user = await this.usersService.findOne(courseDto.userId);
-    const result = await this.coursesRepository.save({ ...courseDto, specialization, user });
+    const result = await this.coursesRepository.save({ ...courseDto, specialization, user, series });
     this.cacheManager.reset();
     return result;
   }
@@ -69,8 +73,9 @@ export class CoursesService {
   async update(id: string, courseDto: UpdateCourseDto) {
     const course = await this.findOne(id);
     const specialization = await this.specializationsService.findOne(courseDto.specializationId);
+    const series = specialization.series.find(s => s.id === courseDto.seriesId) || null;
     const user = await this.usersService.findOne(courseDto.userId);
-    const result = await this.coursesRepository.save({ ...course, ...courseDto, specialization, user });
+    const result = await this.coursesRepository.save({ ...course, ...courseDto, specialization, user, series });
     this.cacheManager.reset();
     return result;
   }
@@ -79,7 +84,7 @@ export class CoursesService {
     const course = await this.findOne(id);
     const fileId = uuid.v4();
     const curriculumPath = safePath(__dirname, 'uploads', `${fileId}.pdf`);
-    fs.writeFileSync(curriculumPath, curricullumFile);
+    fs.writeFileSync(curriculumPath, curricullumFile as any);
     const result = await this.coursesRepository.save({
       ...course,
       curriculumPath: `/uploads/${fileId}.pdf`,

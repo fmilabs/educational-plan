@@ -51,7 +51,7 @@ export default function MyCoursesPage() {
                   {course.specialization.name}, {course.specialization.domain.studyForm}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  Anul {course.year}, semestrul {course.semester}
+                  Anul {course.year}, semestrul {course.semester}{course.series ? `, seria ${course.year}${course.series.number}` : ''}
                 </Typography>
                 {course.isOutdated && (
                   <Typography variant="body2" color="warning.main" sx={{ mt: 1 }}>

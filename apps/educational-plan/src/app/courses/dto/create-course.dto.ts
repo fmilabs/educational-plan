@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsUUID, Min, ValidateIf } from 'class-validator';
 
 
 export class CreateCourseDto {
@@ -6,15 +6,15 @@ export class CreateCourseDto {
   @IsNotEmpty()
   name: string;
 
-  @IsNumber()
+  @IsInt()
   @Min(0)
   credits: number;
 
-  @IsNumber()
+  @IsInt()
   @Min(1)
   year: number;
 
-  @IsNumber()
+  @IsInt()
   @Min(1)
   semester: number;
 
@@ -22,11 +22,19 @@ export class CreateCourseDto {
   optional: boolean;
 
   @IsOptional()
+  @IsInt()
+  @Min(1)
+  @ValidateIf(o => o.seriesId !== null)
   maxStudents: number | null;
 
   @IsNotEmpty()
   @IsUUID()
   specializationId: string;
+
+  @IsOptional()
+  @IsUUID()
+  @ValidateIf(o => o.seriesId !== null)
+  seriesId: string | null;
 
   userId: string;
 

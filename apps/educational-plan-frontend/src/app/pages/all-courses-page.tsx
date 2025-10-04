@@ -1,8 +1,8 @@
 import * as React from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { apiCall, groupBy, romanize, useApiResult } from "../lib/utils";
+import { groupBy, romanize, useApiResult } from "../lib/utils";
 import { DOMAIN_TYPES, ICourse, IDomain } from "@educational-plan/types";
-import { Alert, Box, Card, CardContent, CircularProgress, FormControl, Grid, InputLabel, ListSubheader, MenuItem, Paper, Select, Skeleton, Typography } from "@mui/material";
+import { Alert, Box, Card, CardContent, FormControl, Grid, InputLabel, ListSubheader, MenuItem, Paper, Select, Skeleton, Typography } from "@mui/material";
 import LoadingShade from "../components/loading-shade";
 import { globalStyles } from "../lib/global-styles";
 
@@ -181,7 +181,16 @@ export default function AllCoursesPage() {
                           keyExtractor={course => course.optional.toString()}
                           getLabelFromKey={key => key === 'false' ? 'Cursuri obligatorii' : 'Cursuri opționale'}
                           titleVariant="h6"
-                        />
+                        >
+                          {(courses) => (
+                            <Groupable
+                              courses={courses}
+                              keyExtractor={course => course.series ? `${course.year}${course.series.number}` : '0'}
+                              getLabelFromKey={key => key === '0' ? 'Toate seriile' : `Seria ${key}`}
+                              titleVariant="subtitle2"
+                            />
+                          )}
+                        </Groupable>
                       )}
                     </Groupable>
                   )}

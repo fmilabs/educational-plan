@@ -24,7 +24,7 @@ export interface CourseDialogProps {
   course?: ICourse;
 }
 
-type CourseForm = Omit<ICourse, 'id' | 'curriculumPath' | 'user' | 'specialization' | 'createdAt' | 'updatedAt' | 'curriculumUpdatedAt' | 'isOutdated'> & { specializationId: string };
+type CourseForm = Omit<ICourse, 'id' | 'curriculumPath' | 'user' | 'specialization' | 'series' | 'createdAt' | 'updatedAt' | 'curriculumUpdatedAt' | 'isOutdated'> & { specializationId: string; seriesId: string | null; };
 function getInitialValues(course?: ICourse): CourseForm {
   return {
     name: course?.name || '',
@@ -34,6 +34,7 @@ function getInitialValues(course?: ICourse): CourseForm {
     optional: course?.optional || false,
     maxStudents: course?.maxStudents || '' as any,
     specializationId: course?.specialization?.id || '' as any,
+    seriesId: course?.series?.id || '',
   }
 }
 
@@ -90,7 +91,11 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
     try {
       setIsLoading(true);
       let result: IDomain;
-      const courseFormData: Record<string, any> = { ...courseForm, maxStudents: courseForm.maxStudents || null };
+      const courseFormData: Record<string, any> = {
+        ...courseForm,
+        maxStudents: courseForm.maxStudents || null,
+        seriesId: courseForm.seriesId || null,
+      };
       if(selectedTeacher) {
         courseFormData.userId = selectedTeacher.id;
       }
@@ -192,7 +197,10 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
               value={courseForm.specializationId}
               label="Program de studiu"
               required
-              onChange={(e) => setCourseFormField('specializationId', e.target.value)}
+              onChange={(e) => {
+                setCourseFormField('specializationId', e.target.value);
+                setCourseFormField('seriesId', '' as any);
+              }}
             >
               {domains?.map((domain) => ([
                 domain.specializations!.length > 0 && (
@@ -231,6 +239,20 @@ export default function CourseDialog({ open, onClose, course }: CourseDialogProp
             >
               {Array.from({ length: 2 }).map((_, i) => (
                 <MenuItem key={i} value={i + 1}>Semestrul {romanize(i + 1)}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth margin='dense' disabled={!selectedSpecialization || selectedSpecialization.series.length === 0}>
+            <InputLabel id="series">Serie</InputLabel>
+            <Select
+              labelId="series"
+              value={courseForm.seriesId}
+              label="Serie"
+              onChange={(e) => setCourseFormField('seriesId', e.target.value)}
+            >
+              <MenuItem value="">Toate seriile</MenuItem>
+              {selectedSpecialization?.series.map((series) => (
+                <MenuItem key={series.id} value={series.id}>Seria {courseForm.year}{series.number}</MenuItem>
               ))}
             </Select>
           </FormControl>
