@@ -68,6 +68,13 @@ export class CoursesController {
     return this.coursesService.updateCurriculumFile(id, file.buffer);
   }
 
+  @Post(':id/calendar')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateCalendarFile(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @CurrentUser() user: User) {
+    await this.editGuard(id, user);
+    return this.coursesService.updateCalendarFile(id, file.buffer);
+  }
+
   @Delete(':id')
   async delete(@Param('id') id: string, @CurrentUser() user: User) {
     await this.editGuard(id, user);

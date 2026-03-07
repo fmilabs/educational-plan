@@ -95,6 +95,21 @@ export class CoursesService {
     return result;
   }
 
+  async updateCalendarFile(id: string, calendarFile: Buffer) {
+    const course = await this.findOne(id);
+    const fileId = uuid.v4();
+    const calendarPath = safePath(__dirname, 'uploads', `${fileId}.pdf`);
+    fs.writeFileSync(calendarPath, calendarFile as any);
+    const result = await this.coursesRepository.save({
+      ...course,
+      calendarPath: `/uploads/${fileId}.pdf`,
+      calendarUpdatedAt: new Date(),
+      updatedAt: new Date(),
+    });
+    this.cacheManager.reset();
+    return result;
+  }
+
   async delete(id: string) {
     const course = await this.findOne(id);
     const result = await this.coursesRepository.remove(course);

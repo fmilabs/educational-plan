@@ -60,7 +60,7 @@ export default function CoursePage() {
 
   const canEdit = user?.id === course?.user.id || user?.role == 'admin';
 
-  const UploadCurriculumButton = ({ reupload }: { reupload?: boolean }) => {
+  const UploadFileButton = ({ fileName, reupload }: { fileName: string; reupload?: boolean }) => {
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -68,8 +68,8 @@ export default function CoursePage() {
       try {
         const formData = new FormData();
         formData.append('file', file);
-        await apiCall(`courses/${course!.id}/curriculum`, 'POST', formData);
-        enqueueSnackbar('Fișa cursului a fost încărcată.');
+        await apiCall(`courses/${course!.id}/${fileName}`, 'POST', formData);
+        enqueueSnackbar('Fișierul a fost încărcat.');
         refresh();
       } catch (error) {
         enqueueSnackbar('A apărut o eroare.');
@@ -78,7 +78,7 @@ export default function CoursePage() {
 
     return (
       <>
-        <label htmlFor="upload-file">
+        <label htmlFor={`upload-file-${fileName}`}>
           <Button variant="outlined" component="span">
             <UploadIcon />
             <Typography sx={{ ml: 1, textTransform: 'capitalize', fontWeight: '500' }}>
@@ -88,7 +88,7 @@ export default function CoursePage() {
         </label>
         <input
           type="file"
-          id="upload-file"
+          id={`upload-file-${fileName}`}
           style={{ display: 'none' }}
           accept="application/pdf"
           onChange={handleUpload}
@@ -96,6 +96,34 @@ export default function CoursePage() {
       </>
     );
   }
+
+  const FileSection = ({ title, fileName, path }: { title: string, fileName: string, path: string | null }) => (
+    <Box sx={{ mt: 2 }}>
+      <Typography variant="h5" component="h1" sx={{ mb: 2 }}>
+        {title}
+      </Typography>
+      {path ? (
+        <>
+          <Button variant="contained" href={getMediaUrl(path)} target="_blank" sx={{ mr: 2 }}>
+            <PDFIcon />
+            <Typography sx={{ ml: 1, textTransform: 'capitalize', fontWeight: '500' }}>
+              Vizualizați
+            </Typography>
+          </Button>
+          {canEdit && <UploadFileButton fileName={fileName} reupload />}
+        </>
+      ) : (
+        <>
+          {(!user || user.id != course?.user.id) && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              Profesorul nu a încărcat documentul.
+            </Alert>
+          )}
+          {canEdit && <UploadFileButton fileName={fileName} />}
+        </>
+      )}
+    </Box>
+  );
 
   return (
     <Box>
@@ -192,31 +220,8 @@ export default function CoursePage() {
               </ListItem>
             )}
           </List>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h5" component="h1" sx={{ mb: 2 }}>
-              Fișa cursului
-            </Typography>
-            {course.curriculumPath ? (
-              <>
-                <Button variant="contained" href={getMediaUrl(course.curriculumPath)} target="_blank" sx={{ mr: 2 }}>
-                  <PDFIcon />
-                  <Typography sx={{ ml: 1, textTransform: 'capitalize', fontWeight: '500' }}>
-                    Vizualizați
-                  </Typography>
-                </Button>
-                {canEdit && <UploadCurriculumButton reupload />}
-              </>
-            ) : (
-              <>
-                { (!user || user.id != course.user.id) && (
-                  <Alert severity="warning" sx={{ mb: 2 }}>
-                    Profesorul nu a încărcat fișa cursului.
-                  </Alert>
-                )}
-                {canEdit && <UploadCurriculumButton />}
-              </>
-            )}
-          </Box>
+          <FileSection title="Fișa cursului" fileName='curriculum' path={course.curriculumPath} />
+          <FileSection title="Calendar" fileName='calendar' path={course.calendarPath} />
           <CourseDialog {...courseDialogProps} />
         </>
       )}

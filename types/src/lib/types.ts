@@ -48,12 +48,14 @@ export interface ICourse {
   optional: boolean;
   maxStudents: number | null;
   curriculumPath: string;
+  calendarPath: string;
   specialization: ISpecialization;
   series: ISeries | null;
   user: IUser;
   createdAt: Date | string;
   updatedAt: Date | string;
   curriculumUpdatedAt: Date | string;
+  calendarUpdatedAt: Date | string;
   isOutdated: boolean;
 }
 

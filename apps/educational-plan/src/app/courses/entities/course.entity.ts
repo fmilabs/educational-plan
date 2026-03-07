@@ -32,6 +32,9 @@ export class Course implements ICourse {
   @Column({ nullable: true })
   curriculumPath: string | null;
 
+  @Column({ nullable: true })
+  calendarPath: string | null;
+
   @ManyToOne(() => Specialization, (specialization) => specialization.courses, { onDelete: 'CASCADE', eager: true })
   specialization: Specialization;
 
@@ -49,6 +52,9 @@ export class Course implements ICourse {
 
   @Column({ nullable: true })
   curriculumUpdatedAt: Date;
+
+  @Column({ nullable: true })
+  calendarUpdatedAt: Date;
 
   @Expose()
   get isOutdated(): boolean {
