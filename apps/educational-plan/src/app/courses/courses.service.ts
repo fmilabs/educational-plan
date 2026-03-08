@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { CourseQueryDto } from './dto/course-query.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { StudyForm } from '@educational-plan/types';
 
 @Injectable()
 export class CoursesService {
@@ -97,6 +98,10 @@ export class CoursesService {
 
   async updateCalendarFile(id: string, calendarFile: Buffer) {
     const course = await this.findOne(id);
+    const studyForm = course.specialization.domain.studyForm;
+    if(studyForm !== StudyForm.ID && studyForm !== StudyForm.IFR) {
+      throw new BadRequestException(`Acest curs nu are calendar.`);
+    }
     const fileId = uuid.v4();
     const calendarPath = safePath(__dirname, 'uploads', `${fileId}.pdf`);
     fs.writeFileSync(calendarPath, calendarFile as any);

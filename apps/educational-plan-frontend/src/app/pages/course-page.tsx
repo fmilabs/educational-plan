@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Typography from '@mui/material/Typography';
 import { apiCall, getMediaUrl, romanize, useApiResult } from '../lib/utils';
-import { DOMAIN_TYPES, ICourse } from '@educational-plan/types';
+import { DOMAIN_TYPES, ICourse, StudyForm } from '@educational-plan/types';
 
 import Button from '@mui/material/Button';
 import { useParams } from 'react-router-dom';
@@ -59,6 +59,8 @@ export default function CoursePage() {
   }, [error]);
 
   const canEdit = user?.id === course?.user.id || user?.role == 'admin';
+  const domainStudyForm = course?.specialization.domain.studyForm;
+  const hasCalendarFiles = domainStudyForm === StudyForm.ID || domainStudyForm === StudyForm.IFR;
 
   const UploadFileButton = ({ fileName, reupload }: { fileName: string; reupload?: boolean }) => {
 
@@ -220,8 +222,10 @@ export default function CoursePage() {
               </ListItem>
             )}
           </List>
-          <FileSection title="Fișa cursului" fileName='curriculum' path={course.curriculumPath} />
-          <FileSection title="Calendar" fileName='calendar' path={course.calendarPath} />
+          <FileSection title="Fișa disciplinei" fileName='curriculum' path={course.curriculumPath} />
+          {hasCalendarFiles && (
+            <FileSection title="Calendarul disciplinei" fileName='calendar' path={course.calendarPath} />
+          )}
           <CourseDialog {...courseDialogProps} />
         </>
       )}
