@@ -41,7 +41,7 @@ export class CoursesService {
       .addOrderBy('course.name', 'ASC');
   }
 
-  async findAll(courseQueryDto?: CourseQueryDto) {
+  async findAll(courseQueryDto: CourseQueryDto = {}) {
     const { specializationId, ...where } = courseQueryDto as Record<string, any>;
     if (specializationId) {
       where.specialization = { id: courseQueryDto.specializationId };
@@ -122,4 +122,25 @@ export class CoursesService {
     return result;
   }
 
+  async exportCsv(): Promise<Buffer> {
+    const courses = await this.findAll();
+    const header = 'DOMENIU,SPECIALIZARE,FORMA_STUDIU,AN,SEMESTRU,OPȚIONAL,SERIE,NUMĂR_CREDITE,NUME_CURS,PROFESOR,LINK_PAGINA';
+    const rows = courses.map(course => {
+      return [
+        course.specialization.domain.name,
+        course.specialization.name,
+        course.specialization.domain.studyForm.toLocaleUpperCase(),
+        course.year,
+        course.semester,
+        course.optional ? 'Da' : 'Nu',
+        course.series ? course.series.number : '',
+        course.credits,
+        course.name,
+        course.user.lastName + ' ' + course.user.firstName,
+        `${process.env.FRONTEND_URL}/courses/${course.id}`,
+      ].join(',');
+    });
+    const csvContent = [header, ...rows].join('\n');
+    return Buffer.from(csvContent, 'utf-8');
+  }
 }

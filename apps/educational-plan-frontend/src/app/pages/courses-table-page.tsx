@@ -1,6 +1,6 @@
 import React from 'react';
 import { DOMAIN_TYPES, ICourse, IDomain } from '@educational-plan/types';
-import { romanize, useApiResult } from '../lib/utils';
+import { getApiFile, romanize, useApiResult } from '../lib/utils';
 import {
   Box,
   Button,
@@ -79,12 +79,29 @@ export default function CoursesTablePage() {
     });
   }, [courses, specializationId, year, semester]);
 
+  const downloadCsvExport = async () => {
+    const buffer = await getApiFile('/courses/export/csv');
+    const url = window.URL.createObjectURL(buffer);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "courses.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
   return (
     <Box>
       <Box sx={{ display: 'flex', mb: 2 }}>
         <Typography variant="h4" component="h1" sx={{ flexGrow: 1 }}>
           Cursuri
         </Typography>
+        <Button
+          variant="outlined"
+          onClick={downloadCsvExport}
+          sx={{ mr: 2 }}
+        >
+          Export CSV
+        </Button>
         <Button
           variant="outlined"
           onClick={() => setCourseDialogProps((props) => ({

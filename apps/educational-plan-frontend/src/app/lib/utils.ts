@@ -74,6 +74,30 @@ export function useApiResult<R>(...params: Parameters<typeof apiCall>) {
   return [result, error, loading, requestRefresh] as const;
 }
 
+export function getApiFile(url: string) {
+  const resultUrl = BACKEND_URL + (url.startsWith("/") ? url : "/" + url);
+  let headers = new Headers();
+  const token = window.localStorage.getItem("token");
+  if(token) {
+    headers.append("Authorization", `Bearer ${token}`);
+  }
+  return new Promise<Blob>((resolve, reject) => {
+    fetch(resultUrl, {
+      method: "GET",
+      headers,
+    })
+      .then(async (result) => {
+        if(!result.ok) {
+          reject(await result.json());
+        }
+        resolve(await result.blob());
+      })
+      .catch((e) => {
+        reject(getApiError(e));
+      });
+  });
+}
+
 export function getMediaUrl(url: string) {
   return BACKEND_URL + url;
 }

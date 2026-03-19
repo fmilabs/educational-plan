@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, UnauthorizedException, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, Post, Put, Query, StreamableFile, UnauthorizedException, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { CacheTTL, CacheInterceptor } from '@nestjs/cache-manager';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -10,6 +10,7 @@ import { User } from '../users/entities/user.entity';
 import { Role } from '@educational-plan/types';
 import { Public } from '../auth/decorators/public.decorator';
 import { CourseQueryDto } from './dto/course-query.dto';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('courses')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -44,6 +45,13 @@ export class CoursesController {
   @Get('my')
   async findAllByUserId(@CurrentUser() user: User) {
     return this.coursesService.findAllByUserId(user.id);
+  }
+
+  @Get('export/csv')
+  @Roles(Role.Admin)
+  async exportCsv() {
+    const buffer = await this.coursesService.exportCsv() as any;
+    return new StreamableFile(buffer, { type: 'text/csv', disposition: 'attachment; filename="courses.csv"' });
   }
 
   @Get(':id')
