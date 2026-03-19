@@ -135,7 +135,7 @@ export class CoursesService {
         course.optional ? 'Da' : 'Nu',
         course.series ? course.series.number : '',
         course.credits,
-        course.name,
+        `"${course.name}"`,
         course.user.lastName + ' ' + course.user.firstName,
         `${process.env.FRONTEND_URL}/courses/${course.id}`,
       ].join(',');
